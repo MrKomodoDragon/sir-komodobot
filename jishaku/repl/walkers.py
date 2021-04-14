@@ -126,7 +126,7 @@ class KeywordTransformer(ast.NodeTransformer):
                                 # globals().pop
                                 func=ast.Attribute(
                                     value=self.globals_call(node),
-                                    attr="pop",
+                                    attr='pop',
                                     ctx=ast.Load(),
                                     lineno=node.lineno,
                                     col_offset=node.col_offset,
@@ -180,7 +180,7 @@ class KeywordTransformer(ast.NodeTransformer):
 
         return ast.Call(
             func=ast.Name(
-                id="globals",
+                id='globals',
                 ctx=ast.Load(),
                 lineno=node.lineno,
                 col_offset=node.col_offset,

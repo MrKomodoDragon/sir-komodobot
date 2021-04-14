@@ -26,9 +26,9 @@ class ShellFeature(Feature):
     """
 
     @Feature.Command(
-        parent="jsk",
-        name="shell",
-        aliases=["bash", "sh", "powershell", "ps1", "ps", "cmd"],
+        parent='jsk',
+        name='shell',
+        aliases=['bash', 'sh', 'powershell', 'ps1', 'ps', 'cmd'],
     )
     async def jsk_shell(
         self, ctx: commands.Context, *, argument: codeblock_converter
@@ -43,10 +43,10 @@ class ShellFeature(Feature):
         async with ReplResponseReactor(ctx.message):
             with self.submit(ctx):
                 with ShellReader(argument.content) as reader:
-                    prefix = "```" + reader.highlight
+                    prefix = '```' + reader.highlight
 
                     paginator = WrappedPaginator(prefix=prefix, max_size=1975)
-                    paginator.add_line(f"{reader.ps1} {argument.content}\n")
+                    paginator.add_line(f'{reader.ps1} {argument.content}\n')
 
                     interface = PaginatorInterface(
                         ctx.bot, paginator, owner=ctx.author
@@ -59,10 +59,10 @@ class ShellFeature(Feature):
                         await interface.add_line(line)
 
                 await interface.add_line(
-                    f"\n[status] Return code {reader.close_code}"
+                    f'\n[status] Return code {reader.close_code}'
                 )
 
-    @Feature.Command(parent="jsk", name="git")
+    @Feature.Command(parent='jsk', name='git')
     async def jsk_git(
         self, ctx: commands.Context, *, argument: codeblock_converter
     ):
@@ -72,10 +72,10 @@ class ShellFeature(Feature):
 
         return await ctx.invoke(
             self.jsk_shell,
-            argument=Codeblock(argument.language, "git " + argument.content),
+            argument=Codeblock(argument.language, 'git ' + argument.content),
         )
 
-    @Feature.Command(parent="jsk", name="pip")
+    @Feature.Command(parent='jsk', name='pip')
     async def jsk_pip(
         self, ctx: commands.Context, *, argument: codeblock_converter
     ):
@@ -85,5 +85,5 @@ class ShellFeature(Feature):
 
         return await ctx.invoke(
             self.jsk_shell,
-            argument=Codeblock(argument.language, "pip " + argument.content),
+            argument=Codeblock(argument.language, 'pip ' + argument.content),
         )

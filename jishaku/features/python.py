@@ -53,7 +53,7 @@ class PythonFeature(Feature):
             return self._scope
         return Scope()
 
-    @Feature.Command(parent="jsk", name="retain")
+    @Feature.Command(parent='jsk', name='retain')
     async def jsk_retain(self, ctx: commands.Context, *, toggle: bool = None):
         """
         Turn variable retention for REPL on or off.
@@ -63,31 +63,31 @@ class PythonFeature(Feature):
 
         if toggle is None:
             if self.retain:
-                return await ctx.send("Variable retention is set to ON.")
+                return await ctx.send('Variable retention is set to ON.')
 
-            return await ctx.send("Variable retention is set to OFF.")
+            return await ctx.send('Variable retention is set to OFF.')
 
         if toggle:
             if self.retain:
                 return await ctx.send(
-                    "Variable retention is already set to ON."
+                    'Variable retention is already set to ON.'
                 )
 
             self.retain = True
             self._scope = Scope()
             return await ctx.send(
-                "Variable retention is ON. Future REPL sessions will retain their scope."
+                'Variable retention is ON. Future REPL sessions will retain their scope.'
             )
 
         if not self.retain:
-            return await ctx.send("Variable retention is already set to OFF.")
+            return await ctx.send('Variable retention is already set to OFF.')
 
         self.retain = False
         return await ctx.send(
-            "Variable retention is OFF. Future REPL sessions will dispose their scope when done."
+            'Variable retention is OFF. Future REPL sessions will dispose their scope when done.'
         )
 
-    @Feature.Command(parent="jsk", name="py", aliases=["python"])
+    @Feature.Command(parent='jsk', name='py', aliases=['python'])
     async def jsk_python(
         self, ctx: commands.Context, *, argument: codeblock_converter
     ):
@@ -96,7 +96,7 @@ class PythonFeature(Feature):
         """
 
         arg_dict = get_var_dict_from_ctx(ctx, SCOPE_PREFIX)
-        arg_dict["_"] = self.last_result
+        arg_dict['_'] = self.last_result
 
         scope = self.scope
 
@@ -127,7 +127,7 @@ class PythonFeature(Feature):
                                 # inconsistency here, results get wrapped in codeblocks when they are too large
                                 #  but don't if they're not. probably not that bad, but noting for later review
                                 paginator = WrappedPaginator(
-                                    prefix="```py", suffix="```", max_size=1985
+                                    prefix='```py', suffix='```', max_size=1985
                                 )
 
                                 paginator.add_line(result)
@@ -137,14 +137,14 @@ class PythonFeature(Feature):
                                 )
                                 send(await interface.send_to(ctx))
                             else:
-                                if result.strip() == "":
-                                    result = "\u200b"
+                                if result.strip() == '':
+                                    result = '\u200b'
 
                                 send(
                                     await ctx.send(
                                         result.replace(
                                             self.bot.http.token,
-                                            "[token omitted]",
+                                            '[token omitted]',
                                         )
                                     )
                                 )
@@ -152,9 +152,9 @@ class PythonFeature(Feature):
             scope.clear_intersection(arg_dict)
 
     @Feature.Command(
-        parent="jsk",
-        name="py_inspect",
-        aliases=["pyi", "python_inspect", "pythoninspect"],
+        parent='jsk',
+        name='py_inspect',
+        aliases=['pyi', 'python_inspect', 'pythoninspect'],
     )
     async def jsk_python_inspect(
         self, ctx: commands.Context, *, argument: codeblock_converter
@@ -164,7 +164,7 @@ class PythonFeature(Feature):
         """
 
         arg_dict = get_var_dict_from_ctx(ctx, SCOPE_PREFIX)
-        arg_dict["_"] = self.last_result
+        arg_dict['_'] = self.last_result
 
         scope = self.scope
 
@@ -179,20 +179,20 @@ class PythonFeature(Feature):
 
                         header = (
                             repr(result)
-                            .replace("``", "`\u200b`")
-                            .replace(self.bot.http.token, "[token omitted]")
+                            .replace('``', '`\u200b`')
+                            .replace(self.bot.http.token, '[token omitted]')
                         )
 
                         if len(header) > 485:
-                            header = header[0:482] + "..."
+                            header = header[0:482] + '...'
 
                         paginator = WrappedPaginator(
-                            prefix=f"```prolog\n=== {header} ===\n",
+                            prefix=f'```prolog\n=== {header} ===\n',
                             max_size=1985,
                         )
 
                         for name, res in all_inspections(result):
-                            paginator.add_line(f"{name:16.16} :: {res}")
+                            paginator.add_line(f'{name:16.16} :: {res}')
 
                         interface = PaginatorInterface(
                             ctx.bot, paginator, owner=ctx.author
@@ -201,7 +201,7 @@ class PythonFeature(Feature):
         finally:
             scope.clear_intersection(arg_dict)
 
-    @Feature.Command(parent="jsk", name="dis", aliases=["disassemble"])
+    @Feature.Command(parent='jsk', name='dis', aliases=['disassemble'])
     async def jsk_disassemble(
         self, ctx: commands.Context, *, argument: codeblock_converter
     ):
@@ -213,7 +213,7 @@ class PythonFeature(Feature):
 
         async with ReplResponseReactor(ctx.message):
             paginator = WrappedPaginator(
-                prefix="```py", suffix="```", max_size=1985
+                prefix='```py', suffix='```', max_size=1985
             )
 
             for line in disassemble(argument.content, arg_dict=arg_dict):

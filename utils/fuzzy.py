@@ -43,12 +43,12 @@ def partial_ratio(a, b):
     return int(round(100 * max(scores)))
 
 
-_word_regex = re.compile(r"\W", re.IGNORECASE)
+_word_regex = re.compile(r'\W', re.IGNORECASE)
 
 
 def _sort_tokens(a):
-    a = _word_regex.sub(" ", a).lower().strip()
-    return " ".join(sorted(a.split()))
+    a = _word_regex.sub(' ', a).lower().strip()
+    return ' '.join(sorted(a.split()))
 
 
 def token_sort_ratio(a, b):
@@ -156,7 +156,7 @@ def extract_matches(query, choices, *, scorer=quick_ratio, score_cutoff=0):
 def finder(text, collection, *, key=None, lazy=True):
     suggestions = []
     text = str(text)
-    pat = ".*?".join(map(re.escape, text))
+    pat = '.*?'.join(map(re.escape, text))
     regex = re.compile(pat, flags=re.IGNORECASE)
     for item in collection:
         to_search = key(item) if key else item

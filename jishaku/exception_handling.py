@@ -38,12 +38,12 @@ async def send_traceback(
     # to make pylint stop moaning
     etype, value, trace = exc_info
 
-    traceback_content = "".join(
+    traceback_content = ''.join(
         traceback.format_exception(etype, value, trace, verbosity)
-    ).replace("``", "`\u200b`")
+    ).replace('``', '`\u200b`')
 
-    paginator = commands.Paginator(prefix="```py")
-    for line in traceback_content.split("\n"):
+    paginator = commands.Paginator(prefix='```py')
+    for line in traceback_content.split('\n'):
         paginator.add_line(line)
 
     message = None
@@ -92,7 +92,7 @@ class ReactionProcedureTimer:  # pylint: disable=too-few-public-methods
     Class that reacts to a message based on what happens during its lifetime.
     """
 
-    __slots__ = ("message", "loop", "handle", "raised")
+    __slots__ = ('message', 'loop', 'handle', 'raised')
 
     def __init__(
         self,
@@ -110,7 +110,7 @@ class ReactionProcedureTimer:  # pylint: disable=too-few-public-methods
                 1,
                 attempt_add_reaction,
                 self.message,
-                "\N{BLACK RIGHT-POINTING TRIANGLE}",
+                '\N{BLACK RIGHT-POINTING TRIANGLE}',
             )
         )
         return self
@@ -122,7 +122,7 @@ class ReactionProcedureTimer:  # pylint: disable=too-few-public-methods
         # no exception, check mark
         if not exc_val:
             await attempt_add_reaction(
-                self.message, "\N{WHITE HEAVY CHECK MARK}"
+                self.message, '\N{WHITE HEAVY CHECK MARK}'
             )
             return
 
@@ -132,16 +132,16 @@ class ReactionProcedureTimer:  # pylint: disable=too-few-public-methods
             exc_val, (asyncio.TimeoutError, subprocess.TimeoutExpired)
         ):
             # timed out, alarm clock
-            await attempt_add_reaction(self.message, "\N{ALARM CLOCK}")
+            await attempt_add_reaction(self.message, '\N{ALARM CLOCK}')
         elif isinstance(exc_val, SyntaxError):
             # syntax error, single exclamation mark
             await attempt_add_reaction(
-                self.message, "\N{HEAVY EXCLAMATION MARK SYMBOL}"
+                self.message, '\N{HEAVY EXCLAMATION MARK SYMBOL}'
             )
         else:
             # other error, double exclamation mark
             await attempt_add_reaction(
-                self.message, "\N{DOUBLE EXCLAMATION MARK}"
+                self.message, '\N{DOUBLE EXCLAMATION MARK}'
             )
 
 

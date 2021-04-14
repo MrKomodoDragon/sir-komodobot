@@ -22,10 +22,10 @@ from jishaku.features.shell import ShellFeature
 from jishaku.features.voice import VoiceFeature
 
 __all__ = (
-    "Jishaku",
-    "STANDARD_FEATURES",
-    "OPTIONAL_FEATURES",
-    "setup",
+    'Jishaku',
+    'STANDARD_FEATURES',
+    'OPTIONAL_FEATURES',
+    'setup',
 )
 
 STANDARD_FEATURES = (

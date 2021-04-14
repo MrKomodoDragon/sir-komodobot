@@ -19,10 +19,10 @@ import typing
 
 from discord.ext import commands
 
-__all__ = ("Feature", "CommandTask")
+__all__ = ('Feature', 'CommandTask')
 
 
-CommandTask = collections.namedtuple("CommandTask", "index ctx task")
+CommandTask = collections.namedtuple('CommandTask', 'index ctx task')
 
 
 class Feature(commands.Cog):
@@ -56,7 +56,7 @@ class Feature(commands.Cog):
     load_time = datetime.datetime.now()
 
     def __init__(self, *args, **kwargs):  # pylint: disable=too-many-branches
-        self.bot: commands.Bot = kwargs.pop("bot")
+        self.bot: commands.Bot = kwargs.pop('bot')
         self.start_time: datetime.datetime = datetime.datetime.now()
         self.tasks = collections.deque()
         self.task_count: int = 0
@@ -85,7 +85,7 @@ class Feature(commands.Cog):
                         ) from exception
             # Also raise if any command lacks a callback
             if cmd.callback is None:
-                raise RuntimeError(f"Feature command {key} lacks callback")
+                raise RuntimeError(f'Feature command {key} lacks callback')
 
         # Assign depth and has_children
         for key, cmd in command_set:
@@ -138,7 +138,7 @@ class Feature(commands.Cog):
         """
 
         if not await ctx.bot.is_owner(ctx.author):
-            raise commands.NotOwner("You must own this bot to use Jishaku.")
+            raise commands.NotOwner('You must own this bot to use Jishaku.')
         return True
 
     @contextlib.contextmanager

@@ -31,20 +31,20 @@ class MyNewHelp(commands.MinimalHelpCommand):
         can_run = await command.can_run(self.context)
         if can_run is True:
             embed.add_field(
-                name="Can Run?", value="<:greenTick:596576670815879169>"
+                name='Can Run?', value='<:greenTick:596576670815879169>'
             )
         elif can_run is False:
             embed.add_field(
-                name="Can Run?", value="<:redTick:596576672149667840>"
+                name='Can Run?', value='<:redTick:596576672149667840>'
             )
         embed.add_field(
-            name="Help",
-            value=command.help or command.description or "No help found",
+            name='Help',
+            value=command.help or command.description or 'No help found',
         )
         alias = command.aliases
         if alias:
             embed.add_field(
-                name="Aliases", value=", ".join(alias), inline=False
+                name='Aliases', value=', '.join(alias), inline=False
             )
 
         channel = self.get_destination()
@@ -52,34 +52,34 @@ class MyNewHelp(commands.MinimalHelpCommand):
 
     def add_bot_commands_formatting(self, commands, heading):
         if commands:
-            joined = "`,\u2002`".join(c.name for c in commands)
+            joined = '`,\u2002`'.join(c.name for c in commands)
             emoji_dict = {
-                "economy": "💵",
-                "fun": "<:rooDuck:739614767941156874>",
-                "images": "📸",
-                "utility": "⚙️",
-                "music": "🎵",
-                "jishaku": "<:verycool:739613733474795520>",
-                "socket": "🔌",
-                "\u200bNo Category": "<:rooSob:744345453923139714>",
-                "\u200bno category": "<:rooSob:744345453923139714>",
+                'economy': '💵',
+                'fun': '<:rooDuck:739614767941156874>',
+                'images': '📸',
+                'utility': '⚙️',
+                'music': '🎵',
+                'jishaku': '<:verycool:739613733474795520>',
+                'socket': '🔌',
+                '\u200bNo Category': '<:rooSob:744345453923139714>',
+                '\u200bno category': '<:rooSob:744345453923139714>',
             }
             emoji = emoji_dict[heading.lower()]
             self.paginator.add_line(f'{emoji if emoji else ""}  **{heading}**')
 
-            self.paginator.add_line(f"> `{joined}`")
+            self.paginator.add_line(f'> `{joined}`')
 
     def get_ending_note(self):
         command_name = self.invoked_with
         return (
-            "Type `{0}{1}` `[command]` for more info on a command.\n"
-            "You can also type `{0}{1}` `[category]` for more info on a category.".format(
+            'Type `{0}{1}` `[command]` for more info on a command.\n'
+            'You can also type `{0}{1}` `[category]` for more info on a category.'.format(
                 self.clean_prefix, command_name
             )
         )
 
     def get_opening_note(self):
-        return "`<arg>` means the argument is required\n`[arg]` means it is optional"
+        return '`<arg>` means the argument is required\n`[arg]` means it is optional'
 
     async def send_bot_help(self, mapping):
         ctx = self.context
@@ -89,10 +89,10 @@ class MyNewHelp(commands.MinimalHelpCommand):
             self.paginator.add_line(bot.description, empty=True)
 
         self.paginator.add_line(
-            "Useful Links: [Invite Link](https://mrkomododragon.github.io/sir-komodobot/invite) | [Support Server](https://mrkomododragon.github.io/sir-komodobot/support)| [Source](https://github.com/MrKomodoDragon/sir-komodobot) | [Website](https://mrkomododragon.github.io/sir-komodobot)"
+            'Useful Links: [Invite Link](https://mrkomododragon.github.io/sir-komodobot/invite) | [Support Server](https://mrkomododragon.github.io/sir-komodobot/support)| [Source](https://github.com/MrKomodoDragon/sir-komodobot) | [Website](https://mrkomododragon.github.io/sir-komodobot)'
         )
 
-        def get_category(command, *, no_category="\u200bNo Category"):
+        def get_category(command, *, no_category='\u200bNo Category'):
             cog = command.cog
             return cog.qualified_name if cog is not None else no_category
 
@@ -110,9 +110,9 @@ class MyNewHelp(commands.MinimalHelpCommand):
 
     def add_subcommand_formatting(self, command):
         fmt = (
-            "`{0}` \N{EN DASH} {1}"
+            '`{0}` \N{EN DASH} {1}'
             if command.description or command.help
-            else "`{0}` \N{EN DASH} {1} This command is not documented"
+            else '`{0}` \N{EN DASH} {1} This command is not documented'
         )
         self.paginator.add_line(
             fmt.format(
@@ -133,7 +133,7 @@ class MyNewHelp(commands.MinimalHelpCommand):
         filtered = await self.filter_commands(cog.get_commands(), sort=False)
         if filtered:
             self.paginator.add_line(
-                "**%s %s**" % (cog.qualified_name, self.commands_heading)
+                '**%s %s**' % (cog.qualified_name, self.commands_heading)
             )
             if cog.description:
                 self.paginator.add_line(cog.description, empty=True)

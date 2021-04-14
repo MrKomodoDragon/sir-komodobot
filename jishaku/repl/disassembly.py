@@ -18,7 +18,7 @@ import import_expression
 
 from jishaku.repl.scope import Scope
 
-CORO_CODE = """
+CORO_CODE = '''
 import asyncio
 
 import discord
@@ -29,12 +29,12 @@ import jishaku
 
 async def _repl_coroutine({{0}}):
     pass
-""".format(
+'''.format(
     import_expression.constants.IMPORTER
 )
 
 
-def wrap_code(code: str, args: str = "") -> ast.Module:
+def wrap_code(code: str, args: str = '') -> ast.Module:
     """
     Wraps code for disassembly.
 
@@ -43,8 +43,8 @@ def wrap_code(code: str, args: str = "") -> ast.Module:
     it's implemented separately here.
     """
 
-    user_code = import_expression.parse(code, mode="exec")
-    mod = import_expression.parse(CORO_CODE.format(args), mode="exec")
+    user_code = import_expression.parse(code, mode='exec')
+    mod = import_expression.parse(CORO_CODE.format(args), mode='exec')
 
     definition = mod.body[-1]  # async def ...:
     assert isinstance(definition, ast.AsyncFunctionDef)
@@ -87,13 +87,13 @@ def disassemble(code: str, scope: Scope = None, arg_dict: dict = None):
 
     scope = scope or Scope()
 
-    wrapped = wrap_code(code, args=", ".join(arg_names))
+    wrapped = wrap_code(code, args=', '.join(arg_names))
     exec(
-        compile(wrapped, "<repl>", "exec"), scope.globals, scope.locals
+        compile(wrapped, '<repl>', 'exec'), scope.globals, scope.locals
     )  # pylint: disable=exec-used
 
     func_def = (
-        scope.locals.get("_repl_coroutine") or scope.globals["_repl_coroutine"]
+        scope.locals.get('_repl_coroutine') or scope.globals['_repl_coroutine']
     )
 
     # pylint is gonna really hate this part onwards
@@ -110,7 +110,7 @@ def disassemble(code: str, scope: Scope = None, arg_dict: dict = None):
         line_offset=0,
     ):
         if instruction.starts_line is not None and instruction.offset > 0:
-            yield ""
+            yield ''
 
         yield instruction._disassemble(4, False, 4)
 
