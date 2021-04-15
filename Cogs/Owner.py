@@ -252,10 +252,6 @@ class Owner(commands.Cog):
             await ctx.send(error)
 
     @commands.command()
-    async def code(self, ctx, *, codeblock):
-        await ctx.send(codeblock.lstrip('`').rstrip('`'))
-
-    @commands.command()
     async def botcdn(self, ctx):
         image = await ctx.message.attachments[0].read()
         json = {'image': image, 'noembed': 'True'}

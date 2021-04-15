@@ -420,6 +420,7 @@ extensions = [
     'Help',
     'Owner',
     'Prefix',
+    'Graphs',
 ]
 
 bot.loop.create_task(create_cache())

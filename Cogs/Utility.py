@@ -600,6 +600,15 @@ class Utility(commands.Cog):
             f'{ctx.author.mention}, here is you reminder to do {reason}: {ctx.message.jump_url}'
         )
 
+    @commands.command()
+    async def code(self, ctx, *, code):
+        json = {'code': code}
+        async with self.bot.session.post(
+            'https://carbonara.vercel.app/api/cook', json=json
+        ) as resp:
+            img = await resp.read()
+        await ctx.send(file=discord.File(io.BytesIO(img), 'thing.png'))
+
 
 def setup(bot):
     bot.add_cog(Utility(bot))
