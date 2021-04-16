@@ -180,8 +180,6 @@ class Owner(commands.Cog):
         env.update(globals())
         imports = 'import asyncio\n'
         'import discord\nfrom discord.ext import commands\nimport aiohttp\n'
-        line = 'return ' + code.splitlines().pop(-1)
-        code += f'\n{line}'
         body = 'async def func():\n' + textwrap.indent(imports + code, '    ')
         try:
             import_expression.exec(body, env, locals())

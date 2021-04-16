@@ -60,7 +60,7 @@ class Context(commands.Context):
         embed = discord.Embed(**kwargs, color=color)
         embed.timestamp = self.message.created_at
         embed.set_footer(
-            text=f'Requested by {self.author}', icon_url=self.author.avatar_url
+            text=f'Requested by {self.author}', icon_url=self.author.avatar.url
         )
         return embed
 

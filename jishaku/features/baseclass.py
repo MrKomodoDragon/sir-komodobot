@@ -56,6 +56,7 @@ class Feature(commands.Cog):
     load_time = datetime.datetime.now()
 
     def __init__(self, *args, **kwargs):  # pylint: disable=too-many-branches
+        # sourcery no-metrics
         self.bot: commands.Bot = kwargs.pop('bot')
         self.start_time: datetime.datetime = datetime.datetime.now()
         self.tasks = collections.deque()
