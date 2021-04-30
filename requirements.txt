@@ -11,7 +11,7 @@ asyncpg==0.22.0
 braceexpand==0.1.6
 polaroid==0.3.2
 import_expression==1.1.4
-aiohttp==3.7.3
+aiohttp==3.7.4
 async_cleverbot==0.2.2
 numpy==1.20.2
 wavelink==0.9.6
