@@ -9,7 +9,7 @@ fuzzywuzzy==0.18.0
 similar==0.2
 asyncpg==0.22.0
 braceexpand==0.1.6
-polaroid==0.3.1
+polaroid==0.3.2
 import_expression==1.1.4
 aiohttp==3.7.3
 async_cleverbot==0.2.2
