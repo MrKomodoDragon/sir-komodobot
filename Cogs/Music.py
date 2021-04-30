@@ -186,6 +186,8 @@ class Player(wavelink.Player):
             await self.controller.message.delete()
         except discord.HTTPException:
             pass
+        except AttributeError:
+            pass
 
         self.controller.stop()
 
@@ -691,9 +693,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             return await ctx.send(
                 'Only the DJ or admins may change the volume.'
             )
-
-        if not 0 < vol < 101:
-            return await ctx.send('Please enter a value between 1 and 100.')
 
         await player.set_volume(vol)
         await ctx.send(f'Set the volume to **{vol}**%', delete_after=7)

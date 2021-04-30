@@ -109,6 +109,7 @@ class Owner(commands.Cog):
     async def blacklist(
         self, ctx, member: discord.Member, *, reason='Spamming the bot'
     ):
+        self.bot.blacklists[member.id] = reason
         await self.bot.pg.execute(
             'INSERT INTO blacklist VALUES ($1, $2)', member.id, reason
         )
@@ -236,6 +237,78 @@ class Owner(commands.Cog):
         else:
             try:
                 self.bot.reload_extension(f'Cogs.{file.lower().capitalize()}')
+            except Exception as e:
+                await ctx.send(e)
+            else:
+                await ctx.message.add_reaction(
+                    '<:greenTick:596576670815879169>'
+                )
+
+    @dev.command()
+    async def load(self, ctx, file: str):
+        if file == '*':
+            errors = []
+            extensions = [
+                'Fun',
+                'Utility',
+                'Images',
+                'jishaku',
+                'Music',
+                'Economy',
+                'Help',
+                'Owner',
+                'Prefix',
+            ]
+            for cog in extensions:
+                try:
+                    self.bot.load_extension(f'Cogs.{cog}')
+                except Exception as e:
+                    errors.append(str(e))
+            if errors:
+                await ctx.send('\n'.join(errors))
+            else:
+                await ctx.message.add_reaction(
+                    '<:greenTick:596576670815879169>'
+                )
+        else:
+            try:
+                self.bot.load_extension(f'Cogs.{file.lower().capitalize()}')
+            except Exception as e:
+                await ctx.send(e)
+            else:
+                await ctx.message.add_reaction(
+                    '<:greenTick:596576670815879169>'
+                )
+
+    @dev.command()
+    async def unload(self, ctx, file: str):
+        if file == '*':
+            errors = []
+            extensions = [
+                'Fun',
+                'Utility',
+                'Images',
+                'jishaku',
+                'Music',
+                'Economy',
+                'Help',
+                'Owner',
+                'Prefix',
+            ]
+            for cog in extensions:
+                try:
+                    self.bot.unload_extension(f'Cogs.{cog}')
+                except Exception as e:
+                    errors.append(str(e))
+            if errors:
+                await ctx.send('\n'.join(errors))
+            else:
+                await ctx.message.add_reaction(
+                    '<:greenTick:596576670815879169>'
+                )
+        else:
+            try:
+                self.bot.unload_extension(f'Cogs.{file.lower().capitalize()}')
             except Exception as e:
                 await ctx.send(e)
             else:

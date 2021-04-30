@@ -3,14 +3,21 @@ from discord.ext import commands
 import io
 import matplotlib
 import numpy as np
+from Equation import Expression
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import re
 
 
 class Graphs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    def check(self, v):
+        v = list(v.group())
+        v.insert(-1, '*')
+        return ''.join(v)
 
     async def pie_func(self, ctx, numbers):
         fig = plt.figure()
@@ -61,11 +68,13 @@ class Graphs(commands.Cog):
         await ctx.send(file=discord.File(buf, 'thing.png'))
 
     @commands.command()
-    async def quadratic(self, ctx, a: float=1.0, b: float=1.0, c: float=1.0):
+    async def quadratic(
+        self, ctx, a: float = 1.0, b: float = 1.0, c: float = 1.0
+    ):
         fig = plt.figure()
         x = np.linspace(-100, 100, 50000)
         plt.ylim([-50, 50])
-        y = (x**2)*a+(b*x)+c
+        y = (x ** 2) * a + (b * x) + c
         plt.plot(x, y)
         plt.grid(b=True, which='major', color='#666666', linestyle='-')
         buf = io.BytesIO()
@@ -75,11 +84,12 @@ class Graphs(commands.Cog):
         plt.clf()
 
     @commands.command()
-    async def quadratic(self, ctx, a: float = 1.0, b: float = 1.0, c: float = 1.0):
+    async def exponential(
+        self, ctx, a: float = 1.0, b: float = 1.0, c: float = 1.0
+    ):
         fig = plt.figure()
         x = np.linspace(-100, 100, 50000)
-        plt.ylim([-50, 50])
-        y = (x**2)*a+(b*x)+c
+        y = (a * b) ** x + c
         plt.plot(x, y)
         plt.grid(b=True, which='major', color='#666666', linestyle='-')
         buf = io.BytesIO()
@@ -89,10 +99,21 @@ class Graphs(commands.Cog):
         plt.clf()
 
     @commands.command()
-    async def exponential(self, ctx, a: float = 1.0, b: float = 1.0, c: float = 1.0):
+    async def graph(self, ctx, *, equation: str):
         fig = plt.figure()
+        equation = equation.replace('y=', '')
+        equation = equation.replace('y= ', '')
+        equation = equation.replace('y =', '')
+        equation = equation.replace('y = ', '')
+        equation = str(re.sub(r'([0-9\.] ?x)', self.check, equation))
+        equation = str(re.sub(r'([0-9\.] ?\()', self.check, equation))
+        equation = equation.replace(')(', ')*(')
+        expr = Expression(equation, ['x'])
         x = np.linspace(-100, 100, 50000)
-        y = (a*b)**x + c
+        plt.ylim([-50, 50])
+        y = []
+        for i in x:
+            y.append(expr(i))
         plt.plot(x, y)
         plt.grid(b=True, which='major', color='#666666', linestyle='-')
         buf = io.BytesIO()

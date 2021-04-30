@@ -15,6 +15,7 @@ import discord
 from asyncdagpi import Client
 from bs4 import BeautifulSoup
 from discord.ext import commands
+from discord.ext.commands.errors import CheckFailure
 from dotenv import load_dotenv
 from fuzzywuzzy import process
 import logging
@@ -60,7 +61,7 @@ class Context(commands.Context):
         embed = discord.Embed(**kwargs, color=color)
         embed.timestamp = self.message.created_at
         embed.set_footer(
-            text=f'Requested by {self.author}', icon_url=self.author.avatar.url
+            text=f'Requested by {self.author}', icon_url=self.author.avatar_url
         )
         return embed
 
@@ -123,6 +124,7 @@ bot.session = aiohttp.ClientSession(
 bot.embed_color = 0x36393E
 bot.afk = {}
 bot.prefixes = {}
+bot.blacklists = {}
 
 message_cooldown = commands.CooldownMapping.from_cooldown(
     1.0, 3.0, commands.BucketType.user
@@ -134,6 +136,8 @@ async def create_cache():
     prefixes = await bot.pg.fetch('SELECT * FROM PREFIXES')
     for prefix in prefixes:
         bot.prefixes[prefix['guild_id']] = prefix['prefixes']
+    blacklists = await bot.pg.fetch('SELECT * FROM blacklist')
+    bot.blacklists = dict(blacklists)
     return
 
 
@@ -164,6 +168,10 @@ async def on_guild_join(guild):
     await bot.pg.execute(
         'INSERT INTO prefixes VALUES($1, $2)', guild.id, ['kb+']
     )
+
+@bot.event
+async def on_guild_remove(guild):
+    await bot.pg.execute('DELETE FROM prefixes where guild_id = $1', guild.id)
 
 
 @bot.command(
@@ -229,14 +237,21 @@ async def purge(ctx, number, member: discord.Member = None):
         await ctx.channel.purge(limit=int(number), check=mycheck)
 
 
+@bot.check
+async def blacklist(ctx):
+    if ctx.author.id in bot.blacklists.keys():
+        raise commands.CheckFailure()
+    return True
+
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(
-            f'{error.param} is a required argument that is missing!'
+        return await ctx.send(
+            f'{error.param.name} is a required argument that is missing!'
         )
     if isinstance(error, commands.CommandOnCooldown):
-        await ctx.send(
+        return await ctx.send(
             f'{ctx.author.mention},'
             f' try running the command again after'
             f' {round(error.retry_after)} seconds'
@@ -252,35 +267,8 @@ async def on_command_error(ctx, error):
     )
     paginator.add_line(''.join(lines))
     interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
-    await interface.send_to(ctx)
+    return await interface.send_to(ctx)
     raise error
-
-
-@bot.listen('on_message')
-async def on_message(message):
-    if not re.search(r';(.*?);', message.content):
-        return
-    opt_in = await bot.pg.fetchrow(
-        'SELECT opt_in from emotes WHERE member_id = $1', message.author.id
-    )
-    whether_to_do_nitro = opt_in['opt_in']
-    if whether_to_do_nitro is False:
-        return
-    string = message.content
-    list_of_words = string.split()
-    message_to_send = []
-    for i in list_of_words:
-        if i.startswith(';'):
-            emoji_to_convert = i.strip(';')
-            emoji = process.extract(emoji_to_convert, bot.emojis, limit=1)[0]
-            if int(emoji[1]) > 80:
-                message_to_send.append(str(emoji[0]))
-            else:
-                return
-    if message:
-        await message.channel.send(' '.join(message_to_send))
-    else:
-        return
 
 
 @bot.listen('on_message_edit')

@@ -14,7 +14,8 @@ import mystbin
 import psutil
 from discord.ext import commands, menus
 import io
-
+import bs4
+import string
 from jishaku.functools import executor_function
 
 '''
@@ -83,7 +84,7 @@ class Utility(commands.Cog):
 
     async def uhh_rtfm_pls(self, ctx, key, obj):
         page_types = {
-            'latest': 'https://discordpy.readthedocs.io/en/latest',
+            'latest': 'https://discordpy.readthedocs.io/en/master',
             'python': 'https://docs.python.org/3',
             'asyncpg': 'https://magicstack.github.io/asyncpg/current/',
             'zaneapi': 'https://docs.zaneapi.com/en/latest/',
@@ -102,12 +103,12 @@ class Utility(commands.Cog):
                 await asyncio.sleep(time)
                 return await self.uhh_rtfm_pls(ctx, key, obj)
             matches = await resp.json()
-            matches = matches.get('nodes')
+            matches = matches['nodes']
             embed = discord.Embed(color=0x525A32)
-            embed.description = '\n'.join(
-                f'[`{key.replace("discord.", "").replace("ext.", "")}`]({url})'
-                for key, url in matches.items()
-            )
+            listy = []
+            for k, v in matches.items():
+                listy.append(f'[`{k}`]({v})')
+            embed.description = '\n'.join(listy)
             return await ctx.send(embed=embed)
 
     @commands.command(description='Checks Latency of Bot')
@@ -601,6 +602,7 @@ class Utility(commands.Cog):
         )
 
     @commands.command()
+    @commands.is_owner()
     async def code(self, ctx, *, code):
         json = {'code': code}
         async with self.bot.session.post(
@@ -608,6 +610,37 @@ class Utility(commands.Cog):
         ) as resp:
             img = await resp.read()
         await ctx.send(file=discord.File(io.BytesIO(img), 'thing.png'))
+
+    @commands.command()
+    async def pep(self, ctx, pep: int):
+        async with self.bot.session.get(
+            f'https://www.python.org/dev/peps/pep-{pep:0>4}/'
+        ) as resp:
+            data = await resp.text(encoding='utf-8')
+        soup = bs4.BeautifulSoup(data, 'html.parser')
+        tr = soup.find_all('tr', class_='field')
+        title = soup.find('title')
+        th = [thing.th.contents[0] for thing in tr if thing.th.contents]
+
+        td = [thing.td.contents[0] for thing in tr if thing.td.contents]
+        thing = [i for i in zip(th, td)]
+        embed = ctx.embed(
+            title=title.contents[0],
+            url=f'https://www.python.org/dev/peps/pep-{pep:0>4}/',
+        )
+        for i in thing:
+            embed.add_field(name=i[0], value=i[1], inline=False)
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def hoisters(self, ctx):
+        await ctx.send(
+            [
+                i
+                for i in ctx.guild.members
+                if any(i.startswith(s) for s in string.punctuation)
+            ]
+        )
 
 
 def setup(bot):

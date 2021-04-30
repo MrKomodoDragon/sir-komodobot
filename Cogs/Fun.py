@@ -11,6 +11,8 @@ from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 from dotenv import load_dotenv
 from utils.fuzzy import finder
+import re
+from fuzzywuzzy import process
 
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
 
@@ -31,6 +33,34 @@ reddit = asyncpraw.Reddit(
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.Cog.listener('on_message')
+    async def on_message(self, message):
+        if re.search(r';(.*?);', message.content):
+            opt_in = await self.bot.pg.fetchrow(
+                'SELECT opt_in from emotes WHERE member_id = $1',
+                message.author.id,
+            )
+            whether_to_do_nitro = opt_in['opt_in']
+            if whether_to_do_nitro is False:
+                return
+            string = message.content
+            list_of_words = string.split()
+            message_to_send = []
+            for i in list_of_words:
+                if i.startswith(';'):
+                    emoji_to_convert = i.strip(';')
+                    emoji = process.extract(
+                        emoji_to_convert, self.bot.emojis, limit=1
+                    )[0]
+                    if int(emoji[1]) > 80:
+                        message_to_send.append(str(emoji[0]))
+                    else:
+                        return
+            if message:
+                await message.channel.send(' '.join(message_to_send))
+            else:
+                return
 
     @commands.command(description='Posts a random joke', brief='joke')
     async def joke(self, ctx):

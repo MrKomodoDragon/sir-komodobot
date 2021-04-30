@@ -23,9 +23,10 @@ import discord
 from discord.ext import commands, tasks
 from asyncpraw.reddit import Reddit
 import os
+import io
 from twemoji_parser import emoji_to_url
-from polaroid import Image
 import json
+from PIL import Image
 
 load_dotenv()
 
@@ -469,21 +470,6 @@ class Images(commands.Cog):
         await ctx.send(file=file)
 
     @commands.command()
-    async def rainbow(
-        self,
-        ctx,
-        thing: typing.Union[
-            discord.Member, discord.PartialEmoji, discord.Emoji, str
-        ] = None,
-    ):
-        async with ctx.channel.typing():
-            url = Image(await self.get_url(ctx, thing))
-            url.filter('apply_gradient')
-        img = await dagpi.image_process(ImageFeatures.rainbow(), url)
-        file = discord.File(fp=img.image, filename=f'pixel.{img.format}')
-        await ctx.send(file=file)
-
-    @commands.command()
     async def magic(
         self,
         ctx,
@@ -520,6 +506,38 @@ class Images(commands.Cog):
         embed = discord.Embed(title=t)
         embed.set_image(url=ur)
         await ctx.send(embed=embed)
+
+    @commands.command()
+    async def funispin(
+        self,
+        ctx,
+        *,
+        thing: typing.Union[
+            discord.Member, discord.PartialEmoji, discord.Emoji, str
+        ] = None,
+    ):
+        url = await self.get_url(ctx, thing)
+        byte = await self.bot.session.get(url)
+        byte = await byte.read()
+        im = Image.open(io.BytesIO(byte))
+        im.convert('RGBA')
+        frames = []
+        im.resize((256, 256))
+        for i in range(0, 2073600, 6):
+            im = im.rotate(i)
+            frames.append(im.convert('RGBA'))
+        frames += reversed(frames)
+        thingy = io.BytesIO()
+        frames[0].save(
+            thingy,
+            format='gif',
+            save_all=True,
+            append_images=frames[1:],
+            duration=1,
+            loop=0,
+        )
+        thingy.seek(0)
+        await ctx.send(file=discord.File(thingy, 'thing.gif'))
 
 
 def setup(bot):
