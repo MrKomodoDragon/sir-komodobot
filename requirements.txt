@@ -1,4 +1,4 @@
-humanize==3.2.0
+humanize==3.5.0
 dateparser==1.0.0
 aiozaneapi==1.6
 matplotlib==3.4.1
