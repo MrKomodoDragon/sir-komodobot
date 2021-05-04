@@ -79,14 +79,17 @@ class Context(commands.Context):
             await m.delete()
         except asyncio.TimeoutError:
             pass
-
+    
     @property
     def clean_prefix(self):
-        pattern = re.compile(r'<@!?%s>' % self.bot.user.id)
-        return pattern.sub(
-            '@%s' % self.bot.user.display_name.replace('\\', r'\\'),
-            self.prefix,
-        )
+        """:class:`str`: The cleaned up invoke prefix. i.e. mentions are ``@name`` instead of ``<@id>``."""
+        user = self.guild.me if self.guild else self.bot.user
+        # this breaks if the prefix mention is not the bot itself but I
+        # consider this to be an *incredibly* strange use case. I'd rather go
+        # for this common use case rather than waste performance for the
+        # odd one.
+        pattern = re.compile(r"<@!?%s>" % user.id)
+        return pattern.sub("@%s" % user.display_name.replace('\\', r'\\'), self.prefix)
 
 
 class Bot(commands.Bot):
@@ -168,6 +171,7 @@ async def on_guild_join(guild):
     await bot.pg.execute(
         'INSERT INTO prefixes VALUES($1, $2)', guild.id, ['kb+']
     )
+
 
 @bot.event
 async def on_guild_remove(guild):

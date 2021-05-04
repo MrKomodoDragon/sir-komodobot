@@ -17,6 +17,7 @@ import io
 import bs4
 import string
 from jishaku.functools import executor_function
+import random
 
 '''
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -89,7 +90,6 @@ class Utility(commands.Cog):
             'asyncpg': 'https://magicstack.github.io/asyncpg/current/',
             'zaneapi': 'https://docs.zaneapi.com/en/latest/',
             'aiohttp': 'https://docs.aiohttp.org/en/stable/',
-            'rust': 'https://doc.rust-lang.org/std/index.html',
         }
         if obj is None:
             await ctx.send(page_types[key])
@@ -147,9 +147,6 @@ class Utility(commands.Cog):
     async def rtfm_aiohttp(self, ctx, *, thing: str = None):
         await self.uhh_rtfm_pls(ctx, 'aiohttp', thing)
 
-    @rtfm.command(name='rust')
-    async def rtfm_rust(self, ctx, *, thing: str = None):
-        await self.uhh_rtfm_pls(ctx, 'rust', thing)
 
     @executor_function
     @staticmethod
@@ -641,7 +638,10 @@ class Utility(commands.Cog):
                 if any(i.startswith(s) for s in string.punctuation)
             ]
         )
-
+    
+    @commands.command()
+    async def choose(self, ctx, *args: str):
+        await ctx.send(random.choice(args))
 
 def setup(bot):
     bot.add_cog(Utility(bot))

@@ -1,12 +1,17 @@
-import discord
-from discord.ext import commands, menus
-import tabulate
+import datetime
 import io
-import textwrap
-import import_expression
-import traceback
-from jishaku.paginators import PaginatorInterface, WrappedPaginator
 import logging
+import textwrap
+import traceback
+import os
+
+import discord
+import import_expression
+import tabulate
+from discord.ext import commands, menus
+from dotenv import load_dotenv
+
+from jishaku.paginators import PaginatorInterface, WrappedPaginator
 
 thing = logging.Logger('commands')
 logger = logging.getLogger('commands')
@@ -19,6 +24,7 @@ handler.setFormatter(
 )
 logger.addHandler(handler)
 
+load_dotenv()
 
 class CmdSource(menus.ListPageSource):
     async def format_page(self, menu, commands):
@@ -323,11 +329,14 @@ class Owner(commands.Cog):
             await ctx.send(error)
 
     @commands.command()
-    async def botcdn(self, ctx):
+    async def botcdn(self, ctx, *, title: str='Image Uploaded By MrKomododDragon'):
+        time = datetime.datetime.now()
         image = await ctx.message.attachments[0].read()
-        json = {'image': image, 'noembed': 'True'}
+        time = time.strftime('%A, %B %d %Y, at %X')
+        embeds_dict = {'color': '#525a32', 'title': title, 'description': f"Upload by MrKomodoDragon at {time}"}
+        json = {'image': image, 'token': os.getenv('SXCU'), 'og_properties': embeds_dict}
         async with self.bot.session.post(
-            'https://komodo.likes-throwing.rocks/upload/', data=json
+            'https://komodo.has-no-bra.in/upload', data=json
         ) as resp:
             data = await resp.json()
         await ctx.send(data.get('url'))

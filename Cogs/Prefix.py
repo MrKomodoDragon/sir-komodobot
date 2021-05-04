@@ -15,7 +15,8 @@ class Prefixes(commands.Cog):
     async def prefix_add(self, ctx, prefix: str):
         if prefix in self.bot.prefixes[ctx.guild.id]:
             ("<:bonk:759934836193361991> That's already a prefix")
-        self.bot.prefixes[ctx.guild.id].append(prefix)
+        cache_prefix = self.bot.prefixes[ctx.guild.id]
+        cache_prefix.append(prefix)
         prefixes = await self.bot.pg.fetchval(
             'select prefixes from prefixes where guild_id = $1', ctx.guild.id
         )

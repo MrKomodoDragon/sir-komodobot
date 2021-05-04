@@ -78,12 +78,14 @@ class Player(wavelink.Player):
 
         self.waiting = False
         self.updating = False
+        self.loop = True
 
         self.pause_votes = set()
         self.resume_votes = set()
         self.skip_votes = set()
         self.shuffle_votes = set()
         self.stop_votes = set()
+        self.loop_track = None
 
     async def do_next(self) -> None:
         if self.is_playing or self.waiting:
