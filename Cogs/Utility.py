@@ -18,6 +18,7 @@ import bs4
 import string
 from jishaku.functools import executor_function
 import random
+from bs4 import BeautifulSoup
 
 '''
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -85,7 +86,7 @@ class Utility(commands.Cog):
 
     async def uhh_rtfm_pls(self, ctx, key, obj):
         page_types = {
-            'latest': 'https://discordpy.readthedocs.io/en/master',
+            'latest': 'https://discordpy.readthedocs.io/en/latest',
             'python': 'https://docs.python.org/3',
             'asyncpg': 'https://magicstack.github.io/asyncpg/current/',
             'zaneapi': 'https://docs.zaneapi.com/en/latest/',
@@ -147,6 +148,15 @@ class Utility(commands.Cog):
     async def rtfm_aiohttp(self, ctx, *, thing: str = None):
         await self.uhh_rtfm_pls(ctx, 'aiohttp', thing)
 
+    @rtfm.command(name="rust")
+    async def rust(self, ctx, *, text: str):
+        def soup_match(tag):
+            return all(string in tag.text for string in text.strip().split()) and tag.name == 'li'
+        async with self.bot.session.get("https://doc.rust-lang.org/std/all.html") as resp:
+            soup = BeautifulSoup(str(await resp.text()), 'lxml')
+        e = [x.select_one("li > a") for x in soup.find_all(soup_match, limit=8)]
+        lines = [f"[`{a.string}`](https://doc.rust-lang.org/std/{a.get('href')})" for a in e]
+        await ctx.send(embed=discord.Embed(description="\n".join(lines)))
 
     @executor_function
     @staticmethod
@@ -355,7 +365,10 @@ class Utility(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.author == self.bot.user:
+        ctx = await self.bot.get_context(message)
+        if ctx.invoked_with == 'afk':
+            return
+        if message.author.bot:
             return
         for id in self.bot.afk.keys():
             if message.author.id == id:
@@ -574,6 +587,7 @@ class Utility(commands.Cog):
 
     @commands.command()
     async def remind(self, ctx, *, task: str):
+        utcnow = datetime.datetime.utcnow()
         settings = {
             'TIMEZONE': 'UTC',
             'TO_TIMEZONE': 'UTC',
@@ -585,8 +599,9 @@ class Utility(commands.Cog):
         )
         if time_to_remind is None:
             return await ctx.send("I couldn't find a valid time to remind you")
-        thing = time_to_remind[0][1] - datetime.datetime.utcnow()
-        reason = task.replace(time_to_remind[0][0], '').replace(' ', '', 1)
+        thing = time_to_remind[0][1] - utcnow
+        reason = task.replace(time_to_remind[0][0], '')
+        reason = reason.replace(' ', '', 1)
         await ctx.send(thing)
         await ctx.send(
             f"Alright {ctx.author.mention}, I'll remind you to {reason} after {humanize.naturaldelta(thing)}"
@@ -595,7 +610,7 @@ class Utility(commands.Cog):
             (time_to_remind[0][1] - datetime.datetime.utcnow()).total_seconds()
         )
         return await ctx.send(
-            f'{ctx.author.mention}, here is you reminder to do {reason}: {ctx.message.jump_url}'
+            f'{ctx.author.mention}, here is your reminder to do {reason}: {ctx.message.jump_url}'
         )
 
     @commands.command()

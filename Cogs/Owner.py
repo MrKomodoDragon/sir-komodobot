@@ -4,6 +4,7 @@ import logging
 import textwrap
 import traceback
 import os
+import json
 
 import discord
 import import_expression
@@ -12,17 +13,6 @@ from discord.ext import commands, menus
 from dotenv import load_dotenv
 
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
-
-thing = logging.Logger('commands')
-logger = logging.getLogger('commands')
-logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(
-    filename='commands.log', encoding='utf-8', mode='w'
-)
-handler.setFormatter(
-    logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s')
-)
-logger.addHandler(handler)
 
 load_dotenv()
 
@@ -183,6 +173,8 @@ class Owner(commands.Cog):
             'message': ctx.message,
             'guild': ctx.guild,
             'bot': self.bot,
+            'reference': ctx.message.reference,
+            'resolved': ctx.message.reference.resolved if ctx.message.reference else None
         }
         env.update(globals())
         imports = 'import asyncio\n'
@@ -333,10 +325,10 @@ class Owner(commands.Cog):
         time = datetime.datetime.now()
         image = await ctx.message.attachments[0].read()
         time = time.strftime('%A, %B %d %Y, at %X')
-        embeds_dict = {'color': '#525a32', 'title': title, 'description': f"Upload by MrKomodoDragon at {time}"}
-        json = {'image': image, 'token': os.getenv('SXCU'), 'og_properties': embeds_dict}
+        embeds_dict = {'color': '#525a32', 'title': title, 'description': f"Uploaded by MrKomodoDragon at {time} PDT"}
+        data_ = {'image': image, 'token': os.getenv('SXCU'), 'og_properties': json.dumps(embeds_dict)}
         async with self.bot.session.post(
-            'https://komodo.has-no-bra.in/upload', data=json
+            'https://komodo.has-no-bra.in/upload', data=data_
         ) as resp:
             data = await resp.json()
         await ctx.send(data.get('url'))

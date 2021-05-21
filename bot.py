@@ -106,6 +106,7 @@ bot = Bot(
     command_prefix=get_prefix,
     case_insensitive=True,
     intents=intents,
+    owner_ids={835302686983192586, 693987130036453398}
 )
 bot.db = bot.loop.run_until_complete(aiosqlite.connect('config.db'))
 password = os.getenv('POSTGRES_PASS')
