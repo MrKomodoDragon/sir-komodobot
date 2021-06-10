@@ -61,7 +61,7 @@ class Utility(commands.Cog):
             'python': 'https://docs.python.org/3',
             'asyncpg': 'https://magicstack.github.io/asyncpg/current/',
             'zaneapi': 'https://docs.zaneapi.com/en/latest/',
-            'aiohttp': 'https://docs.aiohttp.org/en/stable/',
+            'aiohttp': 'https://daggy1234.github.io/polaroid/api/image.html',
         }
         self.rtfm_lock = asyncio.Lock
         self.afk = {}
@@ -91,6 +91,7 @@ class Utility(commands.Cog):
             'asyncpg': 'https://magicstack.github.io/asyncpg/current/',
             'zaneapi': 'https://docs.zaneapi.com/en/latest/',
             'aiohttp': 'https://docs.aiohttp.org/en/stable/',
+            'polaroid': 'https://daggy1234.github.io/polaroid/'
         }
         if obj is None:
             await ctx.send(page_types[key])
@@ -147,6 +148,10 @@ class Utility(commands.Cog):
     @rtfm.command(name='aiohttp')
     async def rtfm_aiohttp(self, ctx, *, thing: str = None):
         await self.uhh_rtfm_pls(ctx, 'aiohttp', thing)
+    
+    @rtfm.command(name="polaroid")
+    async def rtfm_polaroid(self, ctx, *, thing: str=None):
+        await self.uhh_rtfm_pls(ctx, 'polaroid', thing)
 
     @rtfm.command(name="rust")
     async def rust(self, ctx, *, text: str):
@@ -657,6 +662,14 @@ class Utility(commands.Cog):
     @commands.command()
     async def choose(self, ctx, *args: str):
         await ctx.send(random.choice(args))
+
+    @commands.command()
+    async def buttons(self, ctx):
+        thing = discord.http.Route("POST", f"/channels/{ctx.channel.id}/messages")
+        json = {"content": "a", "components": [{"type": 1, "components": [{"type": 3, "custom_id": "dkfsdfjlskfj", "placeholder": "ksdfjlsfjl", "min_values": 10, "max_values": 20, "options": [{"label": "a", "value": "a"}, {"label": "b", "value": "b"}, {"label": "c", "value": "c"},{"label": "d", "value": "d"},{"label": "e", "value": "e"}, {"label": "f", "value": "f"}, {"label": "g", "value": "g"}, {"label": "h", "value": "h"}, {"label": "i", "value": "i"}, {"label": "j", "value": "j"}, {"label": "k", "value": "fgdfgdg"}, {"label": "l", "value": "erteter"}, {"label": "m", "value": "rtertert"}, {"label": "n", "value": "rteteggk;dlgk;lgkd;gkd;fgkfd;tet"}, {"label": "o", "value": "rterterte"}, {"label": "p", "value": "retetet"}, {"label": "q", "value": "eteaaaaaaaaaaaaaaaaaaaaaaaatert"}, {"label": "r", "value": "fgdgfgdddddddddddddddddd"}, {"label": "s", "value": "fgdgdgfjlkkkkkkkkkdg"}, {"label": "t", "value": "fgdhggdjflkkkkkkkkkkkkkkkkhhggdg"}, {"label": "u", "value": "fgdlfdgkjjjjjjjjjjgdg"},{"label": "v", "value": "dgdgdffdglk;;;;;g"}, {"label": "w", "value": "dfgddfgkldgkdlkg;fdgg"}, ]}]}]}
+
+
+        await self.bot.http.request(thing, json=json)
 
 def setup(bot):
     bot.add_cog(Utility(bot))

@@ -1,11 +1,12 @@
 import datetime
+import inspect
 import io
 import logging
 import textwrap
 import traceback
 import os
 import json
-
+import typing
 import discord
 import import_expression
 import tabulate
@@ -103,7 +104,7 @@ class Owner(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def blacklist(
-        self, ctx, member: discord.Member, *, reason='Spamming the bot'
+        self, ctx, member: typing.Union[discord.Member, discord.User],  *, reason='Spamming the bot'
     ):
         self.bot.blacklists[member.id] = reason
         await self.bot.pg.execute(
@@ -195,7 +196,12 @@ class Owner(commands.Cog):
             )
             return await interface.send_to(ctx)
         try:
-            thing = await locals()['func']()
+            maybe_coro = locals()['func']()
+            if inspect.isasyncgen(maybe_coro):
+                async for i in maybe_coro:
+                    await ctx.send(i)
+                return
+            thing = await maybe_coro
             if thing:
                 if isinstance(thing, discord.Embed):
                     return await ctx.send(embed=thing)

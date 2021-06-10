@@ -466,10 +466,10 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             guild_id=ctx.guild.id, cls=Player, context=ctx
         )
         channel = self.bot.get_channel(int(player.channel_id))
-        required = math.ceil((len(channel.members) - 1) / 2.5)
+        required = math.ceil((len(channel.members) - 1) / 0.25)
 
         if ctx.command.name == 'stop' and len(channel.members) == 3:
-            required = 2
+            required = 5
 
         return required
 

@@ -1,7 +1,6 @@
 humanize==3.2.0
 dateparser==1.0.0
 aiozaneapi==1.6
-matplotlib==3.4.1
 simpleeval==0.9.10
 async_timeout==3.0.1
 googletrans==3.1.0a0

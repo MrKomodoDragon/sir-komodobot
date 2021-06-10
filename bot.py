@@ -22,7 +22,7 @@ import logging
 from simpleeval import simple_eval
 
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
-
+from utils import help
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler(
@@ -129,6 +129,7 @@ bot.embed_color = 0x36393E
 bot.afk = {}
 bot.prefixes = {}
 bot.blacklists = {}
+bot.help_command = help.MyNewHelp()
 
 message_cooldown = commands.CooldownMapping.from_cooldown(
     1.0, 3.0, commands.BucketType.user
@@ -410,10 +411,8 @@ extensions = [
     'jishaku',
     'Music',
     'Economy',
-    'Help',
     'Owner',
     'Prefix',
-    'Graphs',
 ]
 
 bot.loop.create_task(create_cache())
