@@ -109,7 +109,6 @@ bot = Bot(
     help_command=commands.MinimalHelpCommand(),
     activity=discord.Game(name="Listening for kb+help")
 )
-bot.db = bot.loop.run_until_complete(aiosqlite.connect('config.db'))
 password = os.getenv('POSTGRES_PASS')
 pg = bot.loop.run_until_complete(
     asyncpg.create_pool(
@@ -177,15 +176,7 @@ async def on_guild_remove(guild):
     await bot.pg.execute('DELETE FROM prefixes where guild_id = $1', guild.id)
 
 
-@bot.command(
-    description='Sets the prefix for Sir KomodoBot to use in your server.'
-)
-async def setprefix(ctx, prefix: str):
-    await bot.db.execute(
-        f'update config set prefix = (?) where guild_id = {ctx.guild.id}',
-        (prefix,),
-    )
-    await bot.db.commit()
+
 
 
 @bot.command(description='Kicks a member, Admin Only')
