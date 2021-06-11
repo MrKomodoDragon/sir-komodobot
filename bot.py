@@ -4,7 +4,6 @@ import os
 import random
 import re
 import sys
-import traceback
 
 import aiohttp
 import aiosqlite
@@ -14,14 +13,13 @@ import asyncpg
 import discord
 from asyncdagpi import Client
 from bs4 import BeautifulSoup
-from discord import activity
 from discord.ext import commands
 from discord.ext.commands.errors import CheckFailure
 from discord.ext.commands.help import MinimalHelpCommand
 from dotenv import load_dotenv
 from fuzzywuzzy import process
 import logging
-from simpleeval import simple_eval
+
 
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
 logger = logging.getLogger('discord')
