@@ -3,21 +3,9 @@ import similar
 import unicodedata
 import time
 import humanize
-import psutil
-import async_cleverbot as ac
-from simpleeval import simple_eval
-import pathlib
 import typing
 import aiozaneapi
 from asyncdagpi import ImageFeatures, Client
-import datetime
-from bs4 import BeautifulSoup
-import aiosqlite
-import asyncpraw
-import aiohttp
-import re
-import asyncio
-import random
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands, tasks
