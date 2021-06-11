@@ -14,8 +14,10 @@ import asyncpg
 import discord
 from asyncdagpi import Client
 from bs4 import BeautifulSoup
+from discord import activity
 from discord.ext import commands
 from discord.ext.commands.errors import CheckFailure
+from discord.ext.commands.help import MinimalHelpCommand
 from dotenv import load_dotenv
 from fuzzywuzzy import process
 import logging
@@ -106,7 +108,9 @@ bot = Bot(
     command_prefix=get_prefix,
     case_insensitive=True,
     intents=intents,
-    owner_ids={835302686983192586, 693987130036453398}
+    owner_ids={835302686983192586, 693987130036453398},
+    help_command=commands.MinimalHelpCommand(),
+    activity=discord.Game(name="Listening for kb+help")
 )
 bot.db = bot.loop.run_until_complete(aiosqlite.connect('config.db'))
 password = os.getenv('POSTGRES_PASS')
@@ -116,7 +120,6 @@ pg = bot.loop.run_until_complete(
     )
 )
 bot.pg = pg
-bot.remove_command('help')
 bot.session = aiohttp.ClientSession(
     headers={
         'User-Agent': f'python-requests/2.25.1 Sir KomodoBot/1.1.0 Python/'
@@ -129,7 +132,7 @@ bot.embed_color = 0x36393E
 bot.afk = {}
 bot.prefixes = {}
 bot.blacklists = {}
-bot.help_command = help.MyNewHelp()
+
 
 message_cooldown = commands.CooldownMapping.from_cooldown(
     1.0, 3.0, commands.BucketType.user
@@ -149,9 +152,6 @@ async def create_cache():
 @bot.event
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
-    await bot.change_presence(
-        activity=discord.Game(name='Listening for kb+help')
-    )
 
 
 os.environ['JISHAKU_NO_UNDERSCORE'] = True.__str__()
@@ -198,38 +198,6 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     await ctx.send(f'User {member} has kicked.')
 
 
-@bot.command(name='maf', description='Solves easy maf equations')
-async def maf(ctx, *, message):
-    await ctx.send(simple_eval(message))
-
-
-@bot.command()
-@commands.has_permissions(administrator=True)
-async def mute(ctx, time, member: discord.Member, reason=None):
-    time_dict = {'s': 1, 'm': 60, 'h': 3600, 'd': 86400, 'w': 604800}
-    time = time_dict[time[-1]] * int(time[:-1])
-    role = discord.utils.get(member.guild.roles, name='Muted')
-    remove = discord.utils.get(member.guild.roles, name='Regular Memers')
-    await member.add_roles(role)
-    await member.remove_roles(remove)
-    embed = discord.Embed(
-        title='User Muted!',
-        description='**{0}** was muted by **{1}** for {2}!'.format(
-            member, ctx.message.author, time
-        ),
-        color=0xFF00F6,
-    )
-    await ctx.send(embed=embed)
-    await asyncio.sleep(time)
-    await member.add_roles(remove)
-    await member.remove_roles(role)
-    embed = discord.Embed(
-        title='User Unmuted',
-        description='**{0}** was muted by **{1}**!'.format(
-            member, ctx.message.author
-        ),
-        color=0xFF00F6,
-    )
 
 
 @bot.command()
@@ -264,16 +232,7 @@ async def on_command_error(ctx, error):
         )
     if isinstance(error, commands.CommandNotFound):
         return
-    # get data from exception
-    etype = type(error)
-    trace = error.__traceback__
-    lines = traceback.format_exception(etype, error, trace)
-    paginator = WrappedPaginator(
-        max_size=500, prefix='A weird error occured```py', suffix='```'
-    )
-    paginator.add_line(''.join(lines))
-    interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
-    return await interface.send_to(ctx)
+
     raise error
 
 
