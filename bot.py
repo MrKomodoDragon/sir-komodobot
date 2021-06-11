@@ -24,7 +24,6 @@ import logging
 from simpleeval import simple_eval
 
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
-from utils import help
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler(

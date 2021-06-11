@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 from dotenv import load_dotenv
-from utils.fuzzy import finder
 import re
 from fuzzywuzzy import process
 
@@ -328,36 +327,6 @@ class Fun(commands.Cog):
         top_posts = subreddit.top('hour')
         await ctx.send(top_posts)
 
-    @commands.command()
-    async def emoji(self, ctx, *, search: str = None):
-        lists = []
-        paginator = WrappedPaginator(max_size=500, prefix='', suffix='')
-        if search is not None:
-            emojis = finder(
-                search, self.bot.emojis, key=lambda i: i.name, lazy=False
-            )
-            if emojis == []:
-                return await ctx.send('no emoji found')
-            for i in emojis:
-                if i.animated is True:
-                    lists.append(f'{str(i)} `<a:{i.name}:{i.id}>`')
-                else:
-                    lists.append(f'{str(i)} `<:{i.name}:{i.id}>`')
-            paginator.add_line('\n'.join(lists))
-            interface = self.PaginatorEmbedInterface(
-                ctx.bot, paginator, owner=ctx.author
-            )
-            return await interface.send_to(ctx)
-        for i in self.bot.emojis:
-            if i.animated is True:
-                lists.append(f'{str(i)} `<a:{i.name}:{i.id}>`')
-            else:
-                lists.append(f'{str(i)} `<:{i.name}:{i.id}>`')
-        paginator.add_line('\n'.join(lists))
-        interface = self.PaginatorEmbedInterface(
-            ctx.bot, paginator, owner=ctx.author
-        )
-        await interface.send_to(ctx)
 
     @commands.command()
     async def opt_in(self, ctx):

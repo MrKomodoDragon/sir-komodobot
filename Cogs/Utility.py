@@ -27,30 +27,6 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 '''
 
 
-class TodoSource(menus.ListPageSource):
-    async def format_page(self, menu, todos):
-        # sourcery skip: comprehension-to-generator
-        ctx = menu.ctx
-        count = await ctx.bot.pg.fetchval(
-            'SELECT COUNT(*) FROM TODOS WHERE user_id = $1', ctx.author.id
-        )
-        cur_page = f'Page {menu.current_page + 1}/{self.get_max_pages()}'
-        return ctx.embed(
-            title=f"{menu.ctx.author.name}'s todo list | {count} total entries | {cur_page}",
-            description='\n'.join(
-                [
-                    f"[{todo['jump_url']}]({todo['row_number']} {todo['task']}"
-                    for todo in todos
-                ]
-            ),
-        )
-
-
-class TodoPages(menus.MenuPages):
-    @menus.button('\N{BLACK SQUARE FOR STOP}\ufe0f', position=menus.Last(2))
-    async def end_menu(self, _):
-        self.message.delete()
-        self.stop()
 
 
 class Utility(commands.Cog):
@@ -198,23 +174,6 @@ class Utility(commands.Cog):
         end = time.perf_counter()
         final = end - start
         api_latency = round(final * 1000, 3)
-        cm = cr = fn = cl = ls = fc = 0
-        for f in p.rglob('*.py'):
-            if str(f).startswith('venv'):
-                continue
-            fc += 1
-            with f.open() as of:
-                for line in of.readlines():
-                    line = line.strip()
-                    if line.startswith('class'):
-                        cl += 1
-                    if line.startswith('def'):
-                        fn += 1
-                    if line.startswith('async def'):
-                        cr += 1
-                    if '#' in line:
-                        cm += 1
-                    ls += 1
         async with self.bot.session.get(
             'https://api.github.com/repos/MrKomodoDragon/sir-komodobot/commits'
         ) as f:
@@ -242,127 +201,9 @@ class Utility(commands.Cog):
         embed.add_field(
             name='API Latency', value=f'```py\n{round(api_latency)} ms```'
         )
-        embed.add_field(
-            name='File Stats:',
-            value=f'```py\nFiles: {fc}\nLines: {ls:,}\nClasses: {cl}\nFunctions: {fn}\nCoroutines: {cr}\nComments: {cm:,}```',
-            inline=False,
-        )
         await ctx.send(embed=embed)
 
-    @commands.command(
-        help='Covid stats. Use world as country to view total stats',
-        aliases=['cv'],
-    )
-    async def covid(self, ctx, *, countryName=None):
-        try:
-            if countryName is None:
-                embed = discord.Embed(
-                    title=f'This command is used like this: ```{ctx.prefix}covid [country]```',
-                    colour=discord.Colour.blurple(),
-                    timestamp=ctx.message.created_at,
-                )
-                await ctx.send(embed=embed)
-            else:
-                await ctx.trigger_typing()
-                url = f'https://coronavirus-19-api.herokuapp.com/countries/{countryName}'
-                async with self.bot.session.get(url) as r:
-                    json_stats = await r.json()
-                    country = json_stats['country']
-                    totalCases = f'{json_stats["cases"]:,}'
-                    todayCases = f'{json_stats["todayCases"]:,}'
-                    totalDeaths = f'{json_stats["deaths"]:,}'
-                    todayDeaths = f'{json_stats["todayDeaths"]:,}'
-                    recovered = f'{json_stats["recovered"]:,}'
-                    active = f'{json_stats["active"]:,}'
-                    critical = f'{json_stats["critical"]:,}'
-                    casesPerOneMillion = (
-                        f'{json_stats["casesPerOneMillion"]:,}'
-                    )
-                    deathsPerOneMillion = (
-                        f'{json_stats["deathsPerOneMillion"]:,}'
-                    )
-                    totalTests = f'{json_stats["totalTests"]:,}'
-                    testsPerOneMillion = (
-                        f'{json_stats["testsPerOneMillion"]:,}'
-                    )
-
-                    embed2 = discord.Embed(
-                        title=f'**COVID-19 Status Of {country}**!',
-                        description="This Information Isn't Live Always, Hence It May Not Be Accurate!",
-                        colour=discord.Colour.blurple(),
-                        timestamp=ctx.message.created_at,
-                    )
-                    embed2.add_field(
-                        name='**Total Cases**', value=totalCases, inline=True
-                    )
-                    embed2.add_field(
-                        name='**Today Cases**', value=todayCases, inline=True
-                    )
-                    embed2.add_field(
-                        name='**Total Deaths**', value=totalDeaths, inline=True
-                    )
-                    embed2.add_field(
-                        name='**Today Deaths**', value=todayDeaths, inline=True
-                    )
-                    embed2.add_field(
-                        name='**Recovered**', value=recovered, inline=True
-                    )
-                    embed2.add_field(
-                        name='**Active**', value=active, inline=True
-                    )
-                    embed2.add_field(
-                        name='**Critical**', value=critical, inline=True
-                    )
-                    embed2.add_field(
-                        name='**Cases Per One Million**',
-                        value=casesPerOneMillion,
-                        inline=True,
-                    )
-                    embed2.add_field(
-                        name='**Deaths Per One Million**',
-                        value=deathsPerOneMillion,
-                        inline=True,
-                    )
-                    embed2.add_field(
-                        name='**Total Tests**', value=totalTests, inline=True
-                    )
-                    embed2.add_field(
-                        name='**Tests Per One Million**',
-                        value=testsPerOneMillion,
-                        inline=True,
-                    )
-                    embed2.set_footer(
-                        text=f'Requested by {ctx.author.name}',
-                        icon_url=ctx.author.avatar_url,
-                    )
-
-                    await ctx.send(embed=embed2)
-
-        except:
-            embed3 = discord.Embed(
-                title='Invalid Country Name Or API Error! Try Again..!',
-                colour=discord.Colour.blurple(),
-                timestamp=ctx.message.created_at,
-            )
-            embed3.set_author(name='Error!')
-            await ctx.send(embed=embed3)
-
-    @commands.command()
-    async def charinfo(self, ctx, *, characters: str):
-        """Shows you information about a number of characters.
-        Only up to 25 characters at a time.
-        """
-
-        def to_string(c):
-            digit = f'{ord(c):x}'
-            name = unicodedata.name(c, 'Name not found.')
-            return f'`\\U{digit:>08}`: {name} - {c} \N{EM DASH} <http://www.fileformat.info/info/unicode/char/{digit}>'
-
-        msg = '\n'.join(map(to_string, characters))
-        if len(msg) > 2000:
-            return await ctx.send('Output too long to display.')
-        await ctx.send(msg)
-
+    
     @commands.command()
     async def afk(self, ctx, *, reason='Away from computer'):
         self.bot.afk[ctx.author.id] = reason
@@ -386,128 +227,6 @@ class Utility(commands.Cog):
                 await message.channel.send(
                     f'{str(member)} is afk for: {self.bot.afk[id]}'
                 )
-
-    @commands.group()
-    async def todo(self, ctx):
-        if not ctx.invoked_subcommand:
-            await ctx.send_help(str(ctx.command))
-
-    # thanks ppotatoo for this code
-    @todo.command()
-    async def add(self, ctx, *, thing):
-        await self.bot.pg.execute(
-            'INSERT INTO todos VALUES($1, $2, $3)',
-            ctx.author.id,
-            thing,
-            datetime.datetime.utcnow(),
-        )
-        await ctx.send(
-            embed=ctx.embed(
-                title='I added one task to your list: ', description=thing
-            )
-        )
-
-    @todo.command()
-    async def list(self, ctx):
-        """View all your todos."""
-        sql = (
-            'SELECT DISTINCT todo, sort_date, '
-            'ROW_NUMBER () OVER (ORDER BY sort_date) FROM todos '
-            'WHERE user_id = $1 ORDER BY sort_date'
-        )
-        todos = await self.bot.pg.fetch(sql, ctx.author.id)
-
-        pages = TodoPages(source=TodoSource(todos))
-
-        await pages.start(ctx)
-
-    @todo.command()
-    async def remove(self, ctx, id: int):
-        sql = (
-            'SELECT DISTINCT todo, sort_date, '
-            'ROW_NUMBER () OVER (ORDER BY sort_date) FROM todos '
-            'WHERE user_id = $1 ORDER BY sort_date'
-        )
-        todos = await self.bot.pg.fetch(sql, ctx.author.id)
-        text = todos[id - 1]['todo']
-        await self.bot.pg.execute(
-            'DELETE FROM todos WHERE user_id = $1 AND todo = $2',
-            ctx.author.id,
-            text,
-        )
-        await ctx.send(
-            embed=ctx.embed(
-                title=f'Removed one task:', description=f'`{id}` => {text}'
-            )
-        )
-
-    @todo.command(name='info')
-    async def todo_info(self, ctx, id: int):
-        """
-        View info about a certain task.
-        You can see the exact time the task was created.
-        """
-        sql = (
-            'SELECT DISTINCT todo, sort_date, time, '
-            'ROW_NUMBER () OVER (ORDER BY sort_date) FROM todos '
-            'WHERE user_id = $1 ORDER BY sort_date'
-        )
-        todos = await self.bot.pg.fetch(sql, ctx.author.id)
-        todo = todos[id - 1]['todo']
-        pro = humanize.naturaltime(
-            datetime.datetime.utcnow() - todos[id - 1]['time']
-        )
-        embed = ctx.embed(title=f'Task `{id}`', description=todo)
-        embed.add_field(name='Info', value=f'This todo was created **{pro}**.')
-        await ctx.send(embed=embed)
-
-    @todo.command(usage='<task ID 1> <task ID 2>')
-    async def swap(self, ctx, t1: int, t2: int):
-        """Swap the places of two tasks."""
-        sql = (
-            'SELECT DISTINCT sort_date, todo '
-            'FROM todos '
-            'WHERE user_id = $1 ORDER BY sort_date'
-        )
-        todos = await self.bot.db.fetch(sql, ctx.author.id)
-        task1 = todos[t1 - 1]
-        task2 = todos[t2 - 1]
-        await self.bot.pg.execute(
-            'UPDATE todos SET sort_date = $1 WHERE user_id = $2 AND todo = $3',
-            task2['sort_date'],
-            ctx.author.id,
-            task1['todo'],
-        )
-        await self.bot.pg.execute(
-            'UPDATE todos SET sort_date = $1 WHERE user_id = $2 AND todo = $3',
-            task1['sort_date'],
-            ctx.author.id,
-            task2['todo'],
-        )
-        await ctx.send(
-            embed=ctx.embed(
-                description=f'Succesfully swapped places of todo `{t1}` and `{t2}`'
-            )
-        )
-
-    @todo.command()
-    async def raw(self, ctx, id: int):
-        """View the raw todo for a task."""
-        sql = (
-            'SELECT DISTINCT todo, sort_date, '
-            'ROW_NUMBER () OVER (ORDER BY sort_date) FROM todos '
-            'WHERE user_id = $1 ORDER BY sort_date'
-        )
-
-        todos = await self.bot.db.fetch(sql, ctx.author.id)
-        if id > len(todos):
-            return await ctx.send(
-                f"You only have {len(todos)} {ctx.plural('task(s)', len(todos))}"
-            )
-        await ctx.send(
-            todos[id - 1]['todo'],
-            allowed_mentions=discord.AllowedMentions().none(),
-        )
 
     @commands.command(help='Searches PyPI for a Python Package')
     async def pypi(self, ctx, package: str):
@@ -578,17 +297,6 @@ class Utility(commands.Cog):
             )
         )
 
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        self.bot.socket_stats['COMMAND_ERROR'] += 1
-
-    @commands.Cog.listener()
-    async def on_socket_response(self, msg):
-        self.bot.socket_receive += 1
-        if msg.get('op') != 0:
-            self.bot.socket_stats[self.bot.codes[msg.get('op')]] += 1
-        else:
-            self.bot.socket_stats[msg.get('t')] += 1
 
     @commands.command()
     async def remind(self, ctx, *, task: str):
