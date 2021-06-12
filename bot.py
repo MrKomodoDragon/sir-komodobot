@@ -51,6 +51,7 @@ async def get_prefix(bot, message):
     prefixes = await bot.pg.fetchval(
         'select prefixes from prefixes where guild_id = $1', message.guild.id
     )
+    bot.prefixes[message.guild.id] = prefixes
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
 
@@ -155,14 +156,14 @@ os.environ['JISHAKU_NO_UNDERSCORE'] = True.__str__()
 os.environ['JISHAKU_NO_DM_TRACEBACK'] = True.__str__()
 os.environ['JISHAKU_HIDE'] = True.__str__()
 
-
+"""
 @bot.command()
 @commands.is_owner()
 async def servers(ctx):
     activeservers = bot.guilds
     for guild in activeservers:
         await ctx.send(f'{guild.name}: {guild.id}')
-
+"""
 
 @bot.event
 async def on_guild_join(guild):
@@ -178,7 +179,7 @@ async def on_guild_remove(guild):
 
 
 
-
+"""
 @bot.command(description='Kicks a member, Admin Only')
 @commands.has_permissions(administrator=True)
 async def kick(ctx, member: discord.Member, *, reason=None):
@@ -204,7 +205,7 @@ async def blacklist(ctx):
     if ctx.author.id in bot.blacklists.keys():
         raise commands.CheckFailure()
     return True
-
+"""
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -232,7 +233,7 @@ async def on_message_edit(old, new):
         return
     await bot.process_commands(new)
 
-
+"""
 @bot.command()
 async def xkcd(ctx):
     comic_num = random.randint(1, 2415)
@@ -349,6 +350,7 @@ async def source(ctx):
     '[please respect the license!]'
     '(https://github.com/MrKomodoDragon/sir-komodobot/blob/main/LICENSE))'
     await ctx.send(embed=embed)
+"""    
 
 
 extensions = [
