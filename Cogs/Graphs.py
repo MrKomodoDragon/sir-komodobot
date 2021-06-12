@@ -4,7 +4,7 @@ import io
 import matplotlib
 import numpy as np
 from Equation import Expression
-
+#Yes i know this is blocking, i'll do it later, but for nwo this isn't loaded so it shouldn't be a problem
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import re

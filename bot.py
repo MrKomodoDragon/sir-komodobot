@@ -352,14 +352,15 @@ async def source(ctx):
 
 
 extensions = [
-    'Fun',
-    'Utility',
-    'Images',
+    #'Fun',
+    #'Utility',
+    #'Images',
     'jishaku',
-    'Music',
-    'Economy',
-    'Owner',
-    'Prefix',
+    #'Music',
+    #'Economy',
+    #'Owner',
+    #'Prefix',
+    #'blocktest'
 ]
 
 bot.loop.create_task(create_cache())
