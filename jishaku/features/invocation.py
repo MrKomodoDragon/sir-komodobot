@@ -29,7 +29,7 @@ class InvocationFeature(Feature):
     Feature containing the command invocation related commands
     """
 
-    @Feature.Command(parent='jsk', name='su')
+    @Feature.Command(parent="jsk", name="su")
     async def jsk_su(
         self,
         ctx: commands.Context,
@@ -63,15 +63,13 @@ class InvocationFeature(Feature):
         if alt_ctx.command is None:
             if alt_ctx.invoked_with is None:
                 return await ctx.send(
-                    'This bot has been hard-configured to ignore this user.'
+                    "This bot has been hard-configured to ignore this user."
                 )
-            return await ctx.send(
-                f'Command "{alt_ctx.invoked_with}" is not found'
-            )
+            return await ctx.send(f'Command "{alt_ctx.invoked_with}" is not found')
 
         return await alt_ctx.command.invoke(alt_ctx)
 
-    @Feature.Command(parent='jsk', name='in')
+    @Feature.Command(parent="jsk", name="in")
     async def jsk_in(
         self,
         ctx: commands.Context,
@@ -88,13 +86,11 @@ class InvocationFeature(Feature):
         )
 
         if alt_ctx.command is None:
-            return await ctx.send(
-                f'Command "{alt_ctx.invoked_with}" is not found'
-            )
+            return await ctx.send(f'Command "{alt_ctx.invoked_with}" is not found')
 
         return await alt_ctx.command.invoke(alt_ctx)
 
-    @Feature.Command(parent='jsk', name='sudo')
+    @Feature.Command(parent="jsk", name="sudo")
     async def jsk_sudo(self, ctx: commands.Context, *, command_string: str):
         """
         Run a command bypassing all checks and cooldowns.
@@ -102,18 +98,14 @@ class InvocationFeature(Feature):
         This also bypasses permission checks so this has a high possibility of making commands raise exceptions.
         """
 
-        alt_ctx = await copy_context_with(
-            ctx, content=ctx.prefix + command_string
-        )
+        alt_ctx = await copy_context_with(ctx, content=ctx.prefix + command_string)
 
         if alt_ctx.command is None:
-            return await ctx.send(
-                f'Command "{alt_ctx.invoked_with}" is not found'
-            )
+            return await ctx.send(f'Command "{alt_ctx.invoked_with}" is not found')
 
         return await alt_ctx.command.reinvoke(alt_ctx)
 
-    @Feature.Command(parent='jsk', name='repeat')
+    @Feature.Command(parent="jsk", name="repeat")
     async def jsk_repeat(
         self, ctx: commands.Context, times: int, *, command_string: str
     ):
@@ -137,20 +129,16 @@ class InvocationFeature(Feature):
 
                 await alt_ctx.command.reinvoke(alt_ctx)
 
-    @Feature.Command(parent='jsk', name='debug', aliases=['dbg'])
+    @Feature.Command(parent="jsk", name="debug", aliases=["dbg"])
     async def jsk_debug(self, ctx: commands.Context, *, command_string: str):
         """
         Run a command timing execution and catching exceptions.
         """
 
-        alt_ctx = await copy_context_with(
-            ctx, content=ctx.prefix + command_string
-        )
+        alt_ctx = await copy_context_with(ctx, content=ctx.prefix + command_string)
 
         if alt_ctx.command is None:
-            return await ctx.send(
-                f'Command "{alt_ctx.invoked_with}" is not found'
-            )
+            return await ctx.send(f'Command "{alt_ctx.invoked_with}" is not found')
 
         start = time.perf_counter()
 
@@ -160,10 +148,10 @@ class InvocationFeature(Feature):
 
         end = time.perf_counter()
         return await ctx.send(
-            f'Command `{alt_ctx.command.qualified_name}` finished in {end - start:.3f}s.'
+            f"Command `{alt_ctx.command.qualified_name}` finished in {end - start:.3f}s."
         )
 
-    @Feature.Command(parent='jsk', name='source', aliases=['src'])
+    @Feature.Command(parent="jsk", name="source", aliases=["src"])
     async def jsk_source(self, ctx: commands.Context, *, command_name: str):
         """
         Displays the source code for a command.
@@ -177,15 +165,13 @@ class InvocationFeature(Feature):
             source_lines, _ = inspect.getsourcelines(command.callback)
         except (TypeError, OSError):
             return await ctx.send(
-                f'Was unable to retrieve the source for `{command}` for some reason.'
+                f"Was unable to retrieve the source for `{command}` for some reason."
             )
 
         # getsourcelines for some reason returns WITH line endings
-        source_lines = ''.join(source_lines).split('\n')
+        source_lines = "".join(source_lines).split("\n")
 
-        paginator = WrappedPaginator(
-            prefix='```py', suffix='```', max_size=1985
-        )
+        paginator = WrappedPaginator(prefix="```py", suffix="```", max_size=1985)
         for line in source_lines:
             paginator.add_line(line)
 

@@ -1,6 +1,7 @@
-import typing
 import asyncio
 import functools
+import typing
+
 
 # taken from `?tag to_thread deco` in the dpy server
 def to_thread(func: typing.Callable) -> typing.Coroutine:

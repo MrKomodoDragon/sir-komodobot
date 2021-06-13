@@ -28,11 +28,9 @@ class FilesystemFeature(Feature):
     Feature containing the filesystem-related commands
     """
 
-    __cat_line_regex = re.compile(
-        r'(?:\.\/+)?(.+?)(?:#L?(\d+)(?:\-L?(\d+))?)?$'
-    )
+    __cat_line_regex = re.compile(r"(?:\.\/+)?(.+?)(?:#L?(\d+)(?:\-L?(\d+))?)?$")
 
-    @Feature.Command(parent='jsk', name='cat')
+    @Feature.Command(parent="jsk", name="cat")
     async def jsk_cat(self, ctx: commands.Context, argument: str):
         """
         Read out a file, using syntax highlighting if detected.
@@ -54,23 +52,21 @@ class FilesystemFeature(Feature):
             line_span = (start, int(match.group(3) or start))
 
         if not os.path.exists(path) or os.path.isdir(path):
-            return await ctx.send(f'`{path}`: No file by that name.')
+            return await ctx.send(f"`{path}`: No file by that name.")
 
         size = os.path.getsize(path)
 
         if size <= 0:
             return await ctx.send(
-                f'`{path}`: Cowardly refusing to read a file with no size stat'
-                f' (it may be empty, endless or inaccessible).'
+                f"`{path}`: Cowardly refusing to read a file with no size stat"
+                f" (it may be empty, endless or inaccessible)."
             )
 
         if size > 50 * (1024 ** 2):
-            return await ctx.send(
-                f'`{path}`: Cowardly refusing to read a file >50MB.'
-            )
+            return await ctx.send(f"`{path}`: Cowardly refusing to read a file >50MB.")
 
         try:
-            with open(path, 'rb') as file:
+            with open(path, "rb") as file:
                 paginator = WrappedFilePaginator(
                     file, line_span=line_span, max_size=1985
                 )
@@ -84,7 +80,7 @@ class FilesystemFeature(Feature):
         interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
         await interface.send_to(ctx)
 
-    @Feature.Command(parent='jsk', name='curl')
+    @Feature.Command(parent="jsk", name="curl")
     async def jsk_curl(self, ctx: commands.Context, url: str):
         """
         Download and display a text file from the internet.
@@ -93,7 +89,7 @@ class FilesystemFeature(Feature):
         """
 
         # remove embed maskers if present
-        url = url.lstrip('<').rstrip('>')
+        url = url.lstrip("<").rstrip(">")
 
         async with ReplResponseReactor(ctx.message):
             async with aiohttp.ClientSession() as session:
@@ -103,9 +99,7 @@ class FilesystemFeature(Feature):
                     code = response.status
 
             if not data:
-                return await ctx.send(
-                    f'HTTP response was empty (status code {code}).'
-                )
+                return await ctx.send(f"HTTP response was empty (status code {code}).")
 
             try:
                 paginator = WrappedFilePaginator(
@@ -120,7 +114,5 @@ class FilesystemFeature(Feature):
                     f"Couldn't read response (status code {code}), {exc}"
                 )
 
-            interface = PaginatorInterface(
-                ctx.bot, paginator, owner=ctx.author
-            )
+            interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
             await interface.send_to(ctx)

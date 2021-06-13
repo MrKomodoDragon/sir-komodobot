@@ -1,5 +1,6 @@
 # bot.py
 import asyncio
+import logging
 import os
 import random
 import re
@@ -18,38 +19,33 @@ from discord.ext.commands.errors import CheckFailure
 from discord.ext.commands.help import MinimalHelpCommand
 from dotenv import load_dotenv
 from fuzzywuzzy import process
-import logging
-
 
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
-logger = logging.getLogger('discord')
+
+logger = logging.getLogger("discord")
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w'
-)
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
 handler.setFormatter(
-    logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s')
+    logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
 )
 logger.addHandler(handler)
 load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv("DISCORD_TOKEN")
 
-dagpi = Client(os.getenv('DAGPI_TOKEN'))
-cleverbot = ac.Cleverbot(os.getenv('CHATBOT_TOKEN'))
+dagpi = Client(os.getenv("DAGPI_TOKEN"))
+cleverbot = ac.Cleverbot(os.getenv("CHATBOT_TOKEN"))
 
 
-client = aiozaneapi.Client(os.getenv('ZANE_TOKEN'))
+client = aiozaneapi.Client(os.getenv("ZANE_TOKEN"))
 
 
 async def get_prefix(bot, message):
     if message.guild is None:
-        return 'kb+'
+        return "kb+"
     if message.guild.id in bot.prefixes.keys():
-        return commands.when_mentioned_or(*bot.prefixes[message.guild.id])(
-            bot, message
-        )
+        return commands.when_mentioned_or(*bot.prefixes[message.guild.id])(bot, message)
     prefixes = await bot.pg.fetchval(
-        'select prefixes from prefixes where guild_id = $1', message.guild.id
+        "select prefixes from prefixes where guild_id = $1", message.guild.id
     )
     bot.prefixes[message.guild.id] = prefixes
     return commands.when_mentioned_or(*prefixes)(bot, message)
@@ -57,29 +53,29 @@ async def get_prefix(bot, message):
 
 class Context(commands.Context):
     def embed(self, **kwargs):
-        color = kwargs.pop('color', self.bot.embed_color)
+        color = kwargs.pop("color", self.bot.embed_color)
         embed = discord.Embed(**kwargs, color=color)
         embed.timestamp = self.message.created_at
         embed.set_footer(
-            text=f'Requested by {self.author}', icon_url=self.author.avatar_url
+            text=f"Requested by {self.author}", icon_url=self.author.avatar_url
         )
         return embed
 
     async def remove(self, *args, **kwargs):
         m = await self.send(*args, **kwargs)
-        await m.add_reaction('❌')
+        await m.add_reaction("❌")
         try:
             await self.bot.wait_for(
-                'reaction_add',
+                "reaction_add",
                 timeout=120,
                 check=lambda r, u: u.id == self.author.id
                 and r.message.id == m.id
-                and str(r.emoji) == str('❌'),
+                and str(r.emoji) == str("❌"),
             )
             await m.delete()
         except asyncio.TimeoutError:
             pass
-    
+
     @property
     def clean_prefix(self):
         """:class:`str`: The cleaned up invoke prefix. i.e. mentions are ``@name`` instead of ``<@id>``."""
@@ -89,7 +85,7 @@ class Context(commands.Context):
         # for this common use case rather than waste performance for the
         # odd one.
         pattern = re.compile(r"<@!?%s>" % user.id)
-        return pattern.sub("@%s" % user.display_name.replace('\\', r'\\'), self.prefix)
+        return pattern.sub("@%s" % user.display_name.replace("\\", r"\\"), self.prefix)
 
 
 class Bot(commands.Bot):
@@ -108,21 +104,19 @@ bot = Bot(
     intents=intents,
     owner_ids={835302686983192586, 693987130036453398},
     help_command=commands.MinimalHelpCommand(),
-    activity=discord.Game(name="Listening for kb+help")
+    activity=discord.Game(name="Listening for kb+help"),
 )
-password = os.getenv('POSTGRES_PASS')
+password = os.getenv("POSTGRES_PASS")
 pg = bot.loop.run_until_complete(
-    asyncpg.create_pool(
-        f'postgresql://postgres:{password}@localhost:5432/komodobot'
-    )
+    asyncpg.create_pool(f"postgresql://postgres:{password}@localhost:5432/komodobot")
 )
 bot.pg = pg
 bot.session = aiohttp.ClientSession(
     headers={
-        'User-Agent': f'python-requests/2.25.1 Sir KomodoBot/1.1.0 Python/'
-        f'{sys.version_info[0]}.'
-        f'{sys.version_info[1]}.'
-        f'{sys.version_info[2]} aiohttp/{aiohttp.__version__}'
+        "User-Agent": f"python-requests/2.25.1 Sir KomodoBot/1.1.0 Python/"
+        f"{sys.version_info[0]}."
+        f"{sys.version_info[1]}."
+        f"{sys.version_info[2]} aiohttp/{aiohttp.__version__}"
     }
 )
 bot.embed_color = 0x36393E
@@ -138,23 +132,23 @@ message_cooldown = commands.CooldownMapping.from_cooldown(
 
 async def create_cache():
     await bot.wait_until_ready()
-    prefixes = await bot.pg.fetch('SELECT * FROM PREFIXES')
+    prefixes = await bot.pg.fetch("SELECT * FROM PREFIXES")
     for prefix in prefixes:
-        bot.prefixes[prefix['guild_id']] = prefix['prefixes']
-    blacklists = await bot.pg.fetch('SELECT * FROM blacklist')
+        bot.prefixes[prefix["guild_id"]] = prefix["prefixes"]
+    blacklists = await bot.pg.fetch("SELECT * FROM blacklist")
     bot.blacklists = dict(blacklists)
     return
 
 
 @bot.event
 async def on_ready():
-    print(f'{bot.user.name} has connected to Discord!')
+    print(f"{bot.user.name} has connected to Discord!")
 
 
-os.environ['JISHAKU_NO_UNDERSCORE'] = True.__str__()
+os.environ["JISHAKU_NO_UNDERSCORE"] = True.__str__()
 
-os.environ['JISHAKU_NO_DM_TRACEBACK'] = True.__str__()
-os.environ['JISHAKU_HIDE'] = True.__str__()
+os.environ["JISHAKU_NO_DM_TRACEBACK"] = True.__str__()
+os.environ["JISHAKU_HIDE"] = True.__str__()
 
 """
 @bot.command()
@@ -165,18 +159,15 @@ async def servers(ctx):
         await ctx.send(f'{guild.name}: {guild.id}')
 """
 
+
 @bot.event
 async def on_guild_join(guild):
-    await bot.pg.execute(
-        'INSERT INTO prefixes VALUES($1, $2)', guild.id, ['kb+']
-    )
+    await bot.pg.execute("INSERT INTO prefixes VALUES($1, $2)", guild.id, ["kb+"])
 
 
 @bot.event
 async def on_guild_remove(guild):
-    await bot.pg.execute('DELETE FROM prefixes where guild_id = $1', guild.id)
-
-
+    await bot.pg.execute("DELETE FROM prefixes where guild_id = $1", guild.id)
 
 
 """
@@ -207,17 +198,18 @@ async def blacklist(ctx):
     return True
 """
 
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         return await ctx.send(
-            f'{error.param.name} is a required argument that is missing!'
+            f"{error.param.name} is a required argument that is missing!"
         )
     if isinstance(error, commands.CommandOnCooldown):
         return await ctx.send(
-            f'{ctx.author.mention},'
-            f' try running the command again after'
-            f' {round(error.retry_after)} seconds'
+            f"{ctx.author.mention},"
+            f" try running the command again after"
+            f" {round(error.retry_after)} seconds"
         )
     if isinstance(error, commands.CommandNotFound):
         return
@@ -225,13 +217,14 @@ async def on_command_error(ctx, error):
     raise error
 
 
-@bot.listen('on_message_edit')
+@bot.listen("on_message_edit")
 async def on_message_edit(old, new):
     if old.embeds != []:
         return
     if new.embeds != []:
         return
     await bot.process_commands(new)
+
 
 """
 @bot.command()
@@ -350,14 +343,14 @@ async def source(ctx):
     '[please respect the license!]'
     '(https://github.com/MrKomodoDragon/sir-komodobot/blob/main/LICENSE))'
     await ctx.send(embed=embed)
-"""    
+"""
 
 
 extensions = [
     #'Fun',
     #'Utility',
     #'Images',
-    'jishaku',
+    "jishaku",
     #'Music',
     #'Economy',
     #'Owner',
@@ -367,7 +360,7 @@ extensions = [
 
 bot.loop.create_task(create_cache())
 for extension in extensions:
-    bot.load_extension(f'Cogs.{extension}')
+    bot.load_extension(f"Cogs.{extension}")
 
 
 bot.run(TOKEN)
