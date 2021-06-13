@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from jishaku.cog import STANDARD_FEATURES, OPTIONAL_FEATURES
+from jishaku.cog import OPTIONAL_FEATURES, STANDARD_FEATURES
 
 
 class jishaku(*OPTIONAL_FEATURES, *STANDARD_FEATURES):

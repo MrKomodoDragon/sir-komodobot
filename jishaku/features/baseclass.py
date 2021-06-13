@@ -19,10 +19,10 @@ import typing
 
 from discord.ext import commands
 
-__all__ = ('Feature', 'CommandTask')
+__all__ = ("Feature", "CommandTask")
 
 
-CommandTask = collections.namedtuple('CommandTask', 'index ctx task')
+CommandTask = collections.namedtuple("CommandTask", "index ctx task")
 
 
 class Feature(commands.Cog):
@@ -39,9 +39,7 @@ class Feature(commands.Cog):
         :param standalone_ok: Whether the command should be allowed to be standalone if its parent isn't found.
         """
 
-        def __init__(
-            self, parent: str = None, standalone_ok: bool = False, **kwargs
-        ):
+        def __init__(self, parent: str = None, standalone_ok: bool = False, **kwargs):
             self.parent: typing.Union[str, Feature.Command] = parent
             self.standalone_ok = standalone_ok
             self.kwargs = kwargs
@@ -57,7 +55,7 @@ class Feature(commands.Cog):
 
     def __init__(self, *args, **kwargs):  # pylint: disable=too-many-branches
         # sourcery no-metrics
-        self.bot: commands.Bot = kwargs.pop('bot')
+        self.bot: commands.Bot = kwargs.pop("bot")
         self.start_time: datetime.datetime = datetime.datetime.now()
         self.tasks = collections.deque()
         self.task_count: int = 0
@@ -86,7 +84,7 @@ class Feature(commands.Cog):
                         ) from exception
             # Also raise if any command lacks a callback
             if cmd.callback is None:
-                raise RuntimeError(f'Feature command {key} lacks callback')
+                raise RuntimeError(f"Feature command {key} lacks callback")
 
         # Assign depth and has_children
         for key, cmd in command_set:
@@ -106,17 +104,11 @@ class Feature(commands.Cog):
         for key, cmd in command_set:
             if cmd.parent:
                 parent = association_map[cmd.parent]
-                command_type = (
-                    parent.group if cmd.has_children else parent.command
-                )
+                command_type = parent.group if cmd.has_children else parent.command
             else:
-                command_type = (
-                    commands.group if cmd.has_children else commands.command
-                )
+                command_type = commands.group if cmd.has_children else commands.command
 
-            association_map[cmd] = target_cmd = command_type(**cmd.kwargs)(
-                cmd.callback
-            )
+            association_map[cmd] = target_cmd = command_type(**cmd.kwargs)(cmd.callback)
             target_cmd.cog = self
             self.feature_commands[key] = target_cmd
             setattr(self, key, target_cmd)
@@ -139,7 +131,7 @@ class Feature(commands.Cog):
         """
 
         if not await ctx.bot.is_owner(ctx.author):
-            raise commands.NotOwner('You must own this bot to use Jishaku.')
+            raise commands.NotOwner("You must own this bot to use Jishaku.")
         return True
 
     @contextlib.contextmanager

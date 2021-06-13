@@ -30,7 +30,7 @@ class Scope:
         scope = Scope({'a': 3})  # a Scope with a pre-existing global scope key, and an empty local scope.
     """
 
-    __slots__ = ('globals', 'locals')
+    __slots__ = ("globals", "locals")
 
     def __init__(self, globals_: dict = None, locals_: dict = None):
         self.globals: dict = globals_ or {}
@@ -142,12 +142,8 @@ def get_parent_scope_from_var(
             try:
                 frame = frame_info.frame
 
-                if name in frame.f_locals or (
-                    global_ok and name in frame.f_globals
-                ):
-                    return Scope(
-                        globals_=frame.f_globals, locals_=frame.f_locals
-                    )
+                if name in frame.f_locals or (global_ok and name in frame.f_globals):
+                    return Scope(globals_=frame.f_globals, locals_=frame.f_locals)
             finally:
                 del frame
     finally:

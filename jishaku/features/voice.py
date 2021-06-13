@@ -33,21 +33,19 @@ class VoiceFeature(Feature):
         """
 
         if not discord.voice_client.has_nacl:
-            return await ctx.send(
-                'Voice cannot be used because PyNaCl is not loaded.'
-            )
+            return await ctx.send("Voice cannot be used because PyNaCl is not loaded.")
 
         if not discord.opus.is_loaded():
-            if hasattr(discord.opus, '_load_default'):
+            if hasattr(discord.opus, "_load_default"):
                 if (
                     not discord.opus._load_default()
                 ):  # pylint: disable=protected-access,no-member
                     return await ctx.send(
-                        'Voice cannot be used because libopus is not loaded and attempting to load the default failed.'
+                        "Voice cannot be used because libopus is not loaded and attempting to load the default failed."
                     )
             else:
                 return await ctx.send(
-                    'Voice cannot be used because libopus is not loaded.'
+                    "Voice cannot be used because libopus is not loaded."
                 )
 
     @staticmethod
@@ -59,9 +57,7 @@ class VoiceFeature(Feature):
         voice = ctx.guild.voice_client
 
         if not voice or not voice.is_connected():
-            return await ctx.send(
-                'Not connected to a voice channel in this guild.'
-            )
+            return await ctx.send("Not connected to a voice channel in this guild.")
 
     @staticmethod
     async def playing_check(ctx: commands.Context):
@@ -77,13 +73,13 @@ class VoiceFeature(Feature):
 
         if not ctx.guild.voice_client.is_playing():
             return await ctx.send(
-                'The voice client in this guild is not playing anything.'
+                "The voice client in this guild is not playing anything."
             )
 
     @Feature.Command(
-        parent='jsk',
-        name='voice',
-        aliases=['vc'],
+        parent="jsk",
+        name="voice",
+        aliases=["vc"],
         invoke_without_command=True,
         ignore_extra=False,
     )
@@ -101,14 +97,14 @@ class VoiceFeature(Feature):
         voice = ctx.guild.voice_client
 
         if not voice or not voice.is_connected():
-            return await ctx.send('Not connected.')
+            return await ctx.send("Not connected.")
 
         await ctx.send(
-            f'Connected to {voice.channel.name}, '
+            f"Connected to {voice.channel.name}, "
             f"{'paused' if voice.is_paused() else 'playing' if voice.is_playing() else 'idle'}."
         )
 
-    @Feature.Command(parent='jsk_voice', name='join', aliases=['connect'])
+    @Feature.Command(parent="jsk_voice", name="join", aliases=["connect"])
     async def jsk_vc_join(
         self,
         ctx: commands.Context,
@@ -132,7 +128,7 @@ class VoiceFeature(Feature):
             if destination.voice and destination.voice.channel:
                 destination = destination.voice.channel
             else:
-                return await ctx.send('Member has no voice channel.')
+                return await ctx.send("Member has no voice channel.")
 
         voice = ctx.guild.voice_client
 
@@ -141,9 +137,9 @@ class VoiceFeature(Feature):
         else:
             await destination.connect(reconnect=True)
 
-        await ctx.send(f'Connected to {destination.name}.')
+        await ctx.send(f"Connected to {destination.name}.")
 
-    @Feature.Command(parent='jsk_voice', name='disconnect', aliases=['dc'])
+    @Feature.Command(parent="jsk_voice", name="disconnect", aliases=["dc"])
     async def jsk_vc_disconnect(self, ctx: commands.Context):
         """
         Disconnects from the voice channel in this guild, if there is one.
@@ -155,9 +151,9 @@ class VoiceFeature(Feature):
         voice = ctx.guild.voice_client
 
         await voice.disconnect()
-        await ctx.send(f'Disconnected from {voice.channel.name}.')
+        await ctx.send(f"Disconnected from {voice.channel.name}.")
 
-    @Feature.Command(parent='jsk_voice', name='stop')
+    @Feature.Command(parent="jsk_voice", name="stop")
     async def jsk_vc_stop(self, ctx: commands.Context):
         """
         Stops running an audio source, if there is one.
@@ -169,9 +165,9 @@ class VoiceFeature(Feature):
         voice = ctx.guild.voice_client
 
         voice.stop()
-        await ctx.send(f'Stopped playing audio in {voice.channel.name}.')
+        await ctx.send(f"Stopped playing audio in {voice.channel.name}.")
 
-    @Feature.Command(parent='jsk_voice', name='pause')
+    @Feature.Command(parent="jsk_voice", name="pause")
     async def jsk_vc_pause(self, ctx: commands.Context):
         """
         Pauses a running audio source, if there is one.
@@ -183,12 +179,12 @@ class VoiceFeature(Feature):
         voice = ctx.guild.voice_client
 
         if voice.is_paused():
-            return await ctx.send('Audio is already paused.')
+            return await ctx.send("Audio is already paused.")
 
         voice.pause()
-        await ctx.send(f'Paused audio in {voice.channel.name}.')
+        await ctx.send(f"Paused audio in {voice.channel.name}.")
 
-    @Feature.Command(parent='jsk_voice', name='resume')
+    @Feature.Command(parent="jsk_voice", name="resume")
     async def jsk_vc_resume(self, ctx: commands.Context):
         """
         Resumes a running audio source, if there is one.
@@ -200,12 +196,12 @@ class VoiceFeature(Feature):
         voice = ctx.guild.voice_client
 
         if not voice.is_paused():
-            return await ctx.send('Audio is not paused.')
+            return await ctx.send("Audio is not paused.")
 
         voice.resume()
-        await ctx.send(f'Resumed audio in {voice.channel.name}.')
+        await ctx.send(f"Resumed audio in {voice.channel.name}.")
 
-    @Feature.Command(parent='jsk_voice', name='volume')
+    @Feature.Command(parent="jsk_voice", name="volume")
     async def jsk_vc_volume(self, ctx: commands.Context, *, percentage: float):
         """
         Adjusts the volume of an audio source if it is supported.
@@ -221,14 +217,14 @@ class VoiceFeature(Feature):
         if not isinstance(source, discord.PCMVolumeTransformer):
             return await ctx.send(
                 "This source doesn't support adjusting volume or "
-                'the interface to do so is not exposed.'
+                "the interface to do so is not exposed."
             )
 
         source.volume = volume
 
-        await ctx.send(f'Volume set to {volume * 100:.2f}%')
+        await ctx.send(f"Volume set to {volume * 100:.2f}%")
 
-    @Feature.Command(parent='jsk_voice', name='play', aliases=['play_local'])
+    @Feature.Command(parent="jsk_voice", name="play", aliases=["play_local"])
     async def jsk_vc_play(self, ctx: commands.Context, *, uri: str):
         """
         Plays audio direct from a URI.
@@ -245,7 +241,7 @@ class VoiceFeature(Feature):
             voice.stop()
 
         # remove embed maskers if present
-        uri = uri.lstrip('<').rstrip('>')
+        uri = uri.lstrip("<").rstrip(">")
 
         voice.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(uri)))
-        await ctx.send(f'Playing in {voice.channel.name}.')
+        await ctx.send(f"Playing in {voice.channel.name}.")

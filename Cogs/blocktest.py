@@ -1,12 +1,11 @@
-import sys
-import time
 import asyncio
-import threading
-import traceback
 import concurrent.futures
+import sys
+import threading
+import time
+import traceback
 
 import discord
-
 from discord.ext import commands
 
 
@@ -43,7 +42,8 @@ class BlockingMonitor(commands.Cog):
 class StackMonitor(threading.Thread):
     def __init__(self, bot, block_threshold=1, check_freq=2):
         super().__init__(
-            name=f'{type(self).__name__}-{threading._counter()}', daemon=True)
+            name=f"{type(self).__name__}-{threading._counter()}", daemon=True
+        )
 
         self.bot = bot
         self._do_run = threading.Event()
@@ -62,8 +62,7 @@ class StackMonitor(threading.Thread):
 
     def test_loop_availability(self):
         t0 = time.perf_counter()
-        fut = asyncio.run_coroutine_threadsafe(
-            self.dummy_coro(), self.bot.loop)
+        fut = asyncio.run_coroutine_threadsafe(self.dummy_coro(), self.bot.loop)
         t1 = time.perf_counter()
 
         try:
@@ -75,9 +74,11 @@ class StackMonitor(threading.Thread):
             frame = sys._current_frames()[self.bot.loop._thread_id]
             stack = traceback.format_stack(frame)
 
-            if stack == self.last_stack and \
-               frame is self._last_frame and \
-               frame.f_lasti == self._last_frame.f_lasti:
+            if (
+                stack == self.last_stack
+                and frame is self._last_frame
+                and frame.f_lasti == self._last_frame.f_lasti
+            ):
 
                 self.still_blocked = True
                 print("Still blocked...")
@@ -86,7 +87,7 @@ class StackMonitor(threading.Thread):
                 self.still_blocked = False
 
             print(f"Future took longer than {self.block_threshold}s to return")
-            print(''.join(stack))
+            print("".join(stack))
 
             self.last_stack = stack
             self._last_frame = frame

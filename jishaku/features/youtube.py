@@ -19,9 +19,9 @@ from jishaku.features.baseclass import Feature
 from jishaku.features.voice import VoiceFeature
 
 BASIC_OPTS = {
-    'format': 'webm[abr>0]/bestaudio/best',
-    'prefer_ffmpeg': True,
-    'quiet': True,
+    "format": "webm[abr>0]/bestaudio/best",
+    "prefer_ffmpeg": True,
+    "quiet": True,
 }
 
 
@@ -33,7 +33,7 @@ class BasicYouTubeDLSource(discord.FFmpegPCMAudio):
     def __init__(self, url, download: bool = False):
         ytdl = youtube_dl.YoutubeDL(BASIC_OPTS)
         info = ytdl.extract_info(url, download=download)
-        super().__init__(info['url'])
+        super().__init__(info["url"])
 
 
 class YouTubeFeature(Feature):
@@ -42,9 +42,9 @@ class YouTubeFeature(Feature):
     """
 
     @Feature.Command(
-        parent='jsk_voice',
-        name='youtube_dl',
-        aliases=['youtubedl', 'ytdl', 'yt'],
+        parent="jsk_voice",
+        name="youtube_dl",
+        aliases=["youtubedl", "ytdl", "yt"],
     )
     async def jsk_vc_youtube_dl(self, ctx: commands.Context, *, url: str):
         """
@@ -55,7 +55,7 @@ class YouTubeFeature(Feature):
             return
 
         if not youtube_dl:
-            return await ctx.send('youtube_dl is not installed.')
+            return await ctx.send("youtube_dl is not installed.")
 
         voice = ctx.guild.voice_client
 
@@ -63,7 +63,7 @@ class YouTubeFeature(Feature):
             voice.stop()
 
         # remove embed maskers if present
-        url = url.lstrip('<').rstrip('>')
+        url = url.lstrip("<").rstrip(">")
 
         voice.play(discord.PCMVolumeTransformer(BasicYouTubeDLSource(url)))
-        await ctx.send(f'Playing in {voice.channel.name}.')
+        await ctx.send(f"Playing in {voice.channel.name}.")
