@@ -26,4 +26,4 @@ beautifulsoup4==4.9.3
 discord==1.0.1
 Equation==1.2.01
 Pillow==8.2.0
-python-dotenv==0.17.0
+python-dotenv==0.20.0
